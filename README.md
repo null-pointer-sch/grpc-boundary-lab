@@ -1,107 +1,143 @@
 # grpc-boundary-lab
 
-Exploring the performance impact of introducing a gRPC gateway boundary in front of a backend service.
+A small lab to measure the performance cost of introducing a gRPC gateway boundary in front of a backend service.
 
-This project measures:
+It compares two request paths:
+
+- Direct: Client → Backend
+- With gateway: Client → Gateway (async) → Backend
+
+The goal is to quantify:
 
 - Throughput degradation
-- Tail latency amplification (p95 / p99)
+- Tail-latency amplification (p95 / p99)
 - Saturation behavior under load
 
-**Live Documentation:** [https://AndySchubert.github.io/grpc-boundary-lab/](https://AndySchubert.github.io/grpc-boundary-lab/)
+Live docs:
+https://AndySchubert.github.io/grpc-boundary-lab/
 
 ---
 
-## Architecture
+## What’s in this repo
 
-```mermaid
-graph LR
-    A[Client] --> B["Gateway (Async)"]
-    B --> C[Backend]
-    A -->|Baseline| C
-```
-
-The **Gateway** is implemented using asynchronous gRPC stubs to minimize overhead and prevent thread starvation. This lab quantifies the cost of this additional hop, including serialization, network, and scheduling overhead.
+- backend/ – gRPC backend service
+- gateway/ – gRPC gateway that forwards to backend using async stubs
+- loadgen/ – load generator with percentile latency tracking (HdrHistogram)
+- proto/ – protobuf definitions
+- docs/ + mkdocs.yml – documentation site
+- Makefile – one-command workflows
 
 ---
 
-### Prerequisites
-- **Java 21+** (Backend, Gateway, and Load Generator)
-- **Gradle** (via wrapper — `./gradlew`)
-- **Makefile** (for orchestration and sweeps)
-- **(Optional) Python 3.12 + Poetry** — only if you want to preview/build the documentation
+## Prerequisites
 
-## Installation & Setup
-1. **Build all modules**:
-   ```bash
-   make build
-   ```
-2. **Setup Loadgen (Python)**:
-   ```bash
-   poetry install
-   ```
+- Java (Gradle-based project)
+- Python (for docs tooling if needed)
+- make
+
+Optional:
+- Docker (for controlled benchmark environments)
 
 ---
 
-## Quick Start
+## Quick start
 
-1. **Build all modules:**
-   ```bash
-   make build
-   ```
+Build everything:
 
-2. **Run tests:**
-   ```bash
-   make test
-   ```
+make build
 
-3. **Start backend:**
-   ```bash
-   make backend
-   ```
+Run tests:
 
-4. **Start gateway:**
-   ```bash
-   make gateway
-   ```
+make test
 
-5. **Run load sweep (automated):**
-   ```bash
-   make sweep REQUESTS=50000 CONCURRENCY="1 16 64"
-   ```
+Start services (two terminals):
+
+Terminal A:
+make backend
+
+Terminal B:
+make gateway
 
 ---
 
-## Performance Tuning
+## Run a load sweep
 
-Both the backend and gateway support thread pool tuning via environment variables:
+make sweep REQUESTS=50000 CONCURRENCY="1 16 64"
 
-- `BACKEND_THREADS`: fixed thread pool size for the backend server.
-- `GATEWAY_SERVER_THREADS`: thread pool size for the gateway's ingress server.
-- `GATEWAY_CLIENT_THREADS`: thread pool size for the gateway's outbound client channel.
+Suggested quick iteration:
+
+REQUESTS=20000 CONCURRENCY="1 2 4 8 16 32 64"
+
+Adjust concurrency levels to observe saturation and latency amplification.
+
+---
+
+## Thread pool tuning
+
+Environment variables:
+
+- BACKEND_THREADS
+- GATEWAY_SERVER_THREADS
+- GATEWAY_CLIENT_THREADS
 
 Examples:
-```bash
+
 BACKEND_THREADS=64 make backend
+
 GATEWAY_SERVER_THREADS=64 GATEWAY_CLIENT_THREADS=64 make gateway
-```
+
+---
+
+## What to look for
+
+When introducing a gateway hop, expect overhead from:
+
+- Additional scheduling and queuing
+- Serialization/deserialization
+- Extra transport hop
+- Thread pool contention
+
+Key indicators:
+
+- Where p99 latency rises sharply
+- Where throughput plateaus
+- How the gateway shifts the latency knee
 
 ---
 
 ## Documentation
 
-Full documentation including detailed architecture diagrams and analysis is available via MkDocs:
+Online:
+https://AndySchubert.github.io/grpc-boundary-lab/
 
-- **Online:** [Live Link](https://AndySchubert.github.io/grpc-boundary-lab/)
-- **Local:** `make docs`
+Local:
+make docs
+
+Then open the local MkDocs URL printed in the terminal.
+
+---
+
+## Make targets
+
+- make build
+- make test
+- make backend
+- make gateway
+- make sweep
+- make docs
 
 ---
 
 ## Status
 
-- ✅ **Asynchronous Gateway**: High-throughput forwarding.
-- ✅ **Tunable Threading**: Optimize for specific hardware.
-- ✅ **Automated Load Generator**: Percentile latency (HdrHistogram).
-- ✅ **Integration Tests**: Automated verification via `make test` and CI.
-- ✅ **CI/CD**: Automated testing and documentation deployment.
+- Async gateway forwarding
+- Tunable threading for backend and gateway
+- Automated load generator with percentile latency tracking
+- Integration tests and CI
+- MkDocs-based documentation site
 
+---
+
+## License
+
+MIT
