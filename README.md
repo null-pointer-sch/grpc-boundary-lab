@@ -25,12 +25,11 @@ The **Gateway** is implemented using asynchronous gRPC stubs to minimize overhea
 
 ---
 
-## Prerequisites
-- **Java**: 17+ (for Backend/Gateway)
-- **Gradle**: For building the Java modules
-- **Python**: 3.12 (for Loadgen and Documentation)
-- **Poetry**: To manage Python dependencies
-- **Make**: For automated builds and load sweeps
+### Prerequisites
+- **Java 21+** (Backend, Gateway, and Load Generator)
+- **Gradle** (via wrapper — `./gradlew`)
+- **Makefile** (for orchestration and sweeps)
+- **(Optional) Python 3.12 + Poetry** — only if you want to preview/build the documentation
 
 ## Installation & Setup
 1. **Build all modules**:
