@@ -5,7 +5,7 @@ A small lab to measure the performance cost of introducing a gRPC gateway bounda
 It compares two request paths:
 
 - Direct: Client → Backend
-- With gateway: Client → Gateway (async) → Backend
+- With gateway: Client → Gateway → Backend
 
 The goal is to quantify:
 
@@ -18,12 +18,13 @@ https://AndySchubert.github.io/grpc-boundary-lab/
 
 ---
 
-## What’s in this repo
+## What's in this repo
 
-- backend/ – gRPC backend service
-- gateway/ – gRPC gateway that forwards to backend using async stubs
-- loadgen/ – load generator with percentile latency tracking (HdrHistogram)
-- proto/ – protobuf definitions
+- cmd/backend/ – gRPC backend service
+- cmd/gateway/ – gRPC gateway that forwards to backend
+- cmd/loadgen/ – load generator with percentile latency tracking (HdrHistogram)
+- gateway/ – gateway proxy logic (testable)
+- internal/proto/ – protobuf definitions and generated code
 - docs/ + mkdocs.yml – documentation site
 - Makefile – one-command workflows
 
@@ -31,12 +32,12 @@ https://AndySchubert.github.io/grpc-boundary-lab/
 
 ## Prerequisites
 
-- Java (Gradle-based project)
-- Python (for docs tooling if needed)
+- Go 1.22+
 - make
 
 Optional:
 - Docker (for controlled benchmark environments)
+- Python (for docs tooling)
 
 ---
 
@@ -44,47 +45,33 @@ Optional:
 
 Build everything:
 
-make build
+    make build
 
 Run tests:
 
-make test
+    make test
 
 Start services (two terminals):
 
 Terminal A:
-make backend
+
+    make backend
 
 Terminal B:
-make gateway
+
+    make gateway
 
 ---
 
 ## Run a load sweep
 
-make sweep REQUESTS=50000 CONCURRENCY="1 16 64"
+    make sweep REQUESTS=50000 CONCURRENCY="1 16 64"
 
 Suggested quick iteration:
 
-REQUESTS=20000 CONCURRENCY="1 2 4 8 16 32 64"
+    REQUESTS=20000 CONCURRENCY="1 2 4 8 16 32 64"
 
 Adjust concurrency levels to observe saturation and latency amplification.
-
----
-
-## Thread pool tuning
-
-Environment variables:
-
-- BACKEND_THREADS
-- GATEWAY_SERVER_THREADS
-- GATEWAY_CLIENT_THREADS
-
-Examples:
-
-BACKEND_THREADS=64 make backend
-
-GATEWAY_SERVER_THREADS=64 GATEWAY_CLIENT_THREADS=64 make gateway
 
 ---
 
@@ -95,7 +82,7 @@ When introducing a gateway hop, expect overhead from:
 - Additional scheduling and queuing
 - Serialization/deserialization
 - Extra transport hop
-- Thread pool contention
+- Goroutine contention
 
 Key indicators:
 
@@ -111,7 +98,8 @@ Online:
 https://AndySchubert.github.io/grpc-boundary-lab/
 
 Local:
-make docs
+
+    make docs
 
 Then open the local MkDocs URL printed in the terminal.
 
@@ -121,6 +109,7 @@ Then open the local MkDocs URL printed in the terminal.
 
 - make build
 - make test
+- make vet
 - make backend
 - make gateway
 - make sweep
@@ -130,8 +119,7 @@ Then open the local MkDocs URL printed in the terminal.
 
 ## Status
 
-- Async gateway forwarding
-- Tunable threading for backend and gateway
+- Gateway forwarding via gRPC client
 - Automated load generator with percentile latency tracking
 - Integration tests and CI
 - MkDocs-based documentation site

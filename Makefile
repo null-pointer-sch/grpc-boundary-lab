@@ -1,17 +1,83 @@
-.PHONY: help build clean test backend gateway loadgen loadgen-2k loadgen-gw loadgen-backend
+# ──────────────────────────────────────────────────────────────
+#  grpc-boundary-lab  ·  Makefile
+# ──────────────────────────────────────────────────────────────
 
+BIN       := bin
+GO        := go
+MODULE    := ./cmd
 
-# ---- Loadgen defaults ----
-REQUESTS ?= 50000
-WARMUP ?= 2000
+# ── Colours ──────────────────────────────────────────────────
+CYAN      := \033[36m
+GREEN     := \033[32m
+YELLOW    := \033[33m
+BOLD      := \033[1m
+RESET     := \033[0m
+
+# ── Server defaults ─────────────────────────────────────────
+BACKEND_PORT  ?= 50051
+GATEWAY_PORT  ?= 50052
+TARGET_HOST   ?= 127.0.0.1
+
+# ── Loadgen defaults ────────────────────────────────────────
+REQUESTS    ?= 50000
+WARMUP      ?= 2000
 CONCURRENCY ?= 32
 DEADLINE_MS ?= 20000
-RUNS ?= 1
-TARGET_HOST ?= 127.0.0.1
+RUNS        ?= 1
 
-# ---- Server defaults ----
-BACKEND_PORT ?= 50051
-GATEWAY_PORT ?= 50052
+# ── Sweep defaults ──────────────────────────────────────────
+SWEEP_CONC  ?= 1 4 16 32 64 128
+
+# ─────────────────────────────────────────────────────────────
+#  Targets
+# ─────────────────────────────────────────────────────────────
+
+.DEFAULT_GOAL := help
+
+.PHONY: help build clean test vet check
+.PHONY: backend gateway
+.PHONY: loadgen loadgen-backend loadgen-gw loadgen-2k sweep
+.PHONY: docs docs-build docs-deploy
+
+## ── Dev ─────────────────────────────────────────────────────
+
+help: ## Show this help
+	@printf "\n$(BOLD)$(CYAN)grpc-boundary-lab$(RESET)\n\n"
+	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | \
+		awk -F ':.*## ' '{printf "  $(GREEN)%-18s$(RESET) %s\n", $$1, $$2}'
+	@printf "\n$(BOLD)Loadgen vars$(RESET) (override with make … VAR=val):\n"
+	@printf "  TARGET_HOST=$(TARGET_HOST)  REQUESTS=$(REQUESTS)  WARMUP=$(WARMUP)\n"
+	@printf "  CONCURRENCY=$(CONCURRENCY)  DEADLINE_MS=$(DEADLINE_MS)  RUNS=$(RUNS)\n\n"
+
+build: ## Build all binaries → bin/
+	@printf "$(CYAN)▸ building…$(RESET)\n"
+	@mkdir -p $(BIN)
+	$(GO) build -o $(BIN)/backend  $(MODULE)/backend
+	$(GO) build -o $(BIN)/gateway  $(MODULE)/gateway
+	$(GO) build -o $(BIN)/loadgen  $(MODULE)/loadgen
+	@printf "$(GREEN)✔ binaries in $(BIN)/$(RESET)\n"
+
+clean: ## Remove built binaries
+	rm -rf $(BIN)
+
+test: ## Run all tests
+	$(GO) test ./...
+
+vet: ## Run go vet
+	$(GO) vet ./...
+
+check: test vet ## Run tests + vet
+
+## ── Servers ─────────────────────────────────────────────────
+
+backend: ## Start backend server
+	BACKEND_PORT=$(BACKEND_PORT) $(GO) run $(MODULE)/backend
+
+gateway: ## Start gateway server
+	GATEWAY_PORT=$(GATEWAY_PORT) BACKEND_HOST=$(TARGET_HOST) BACKEND_PORT=$(BACKEND_PORT) \
+		$(GO) run $(MODULE)/gateway
+
+## ── Load generation ─────────────────────────────────────────
 
 define RUN_LOADGEN
 	WARMUP=$(WARMUP) \
@@ -21,72 +87,36 @@ define RUN_LOADGEN
 	REQUESTS=$(REQUESTS) \
 	TARGET_HOST=$(TARGET_HOST) \
 	TARGET_PORT=$(1) \
-	./gradlew :loadgen:run
+	$(GO) run $(MODULE)/loadgen
 endef
 
-help:
-	@echo "Targets:"
-	@echo "  build           - build all modules"
-	@echo "  clean           - clean build outputs"
-	@echo "  backend         - run backend server (CTRL+C to stop)"
-	@echo "  gateway         - run gateway server (CTRL+C to stop)"
-	@echo "  loadgen-backend - run loadgen against backend (port $(BACKEND_PORT))"
-	@echo "  loadgen-gw      - run loadgen against gateway (port $(GATEWAY_PORT))"
-	@echo "  loadgen         - alias for loadgen-backend"
-	@echo "  loadgen-2k      - run 2000 requests against backend"
-	@echo ""
-	@echo "Loadgen vars (override like: make loadgen-gw CONCURRENCY=64 RUNS=5):"
-	@echo "  TARGET_HOST=$(TARGET_HOST)"
-	@echo "  REQUESTS=$(REQUESTS) WARMUP=$(WARMUP) CONCURRENCY=$(CONCURRENCY) DEADLINE_MS=$(DEADLINE_MS) RUNS=$(RUNS)"
+loadgen: loadgen-backend ## Alias for loadgen-backend
 
-build:
-	./gradlew build
-
-clean:
-	./gradlew clean
-
-test:
-	./gradlew test
-
-backend:
-	BACKEND_PORT=$(BACKEND_PORT) ./gradlew :backend:run
-
-gateway:
-	GATEWAY_PORT=$(GATEWAY_PORT) BACKEND_HOST=$(TARGET_HOST) BACKEND_PORT=$(BACKEND_PORT) ./gradlew :gateway:run
-
-loadgen: loadgen-backend
-
-loadgen-backend:
+loadgen-backend: ## Loadgen → backend (direct)
 	$(call RUN_LOADGEN,$(BACKEND_PORT))
 
-loadgen-gw:
+loadgen-gw: ## Loadgen → gateway (proxy)
 	$(call RUN_LOADGEN,$(GATEWAY_PORT))
 
-loadgen-2k:
-	$(MAKE) loadgen-backend REQUESTS=2000
+loadgen-2k: ## Quick 2 k-request run → backend
+	$(MAKE) --no-print-directory loadgen-backend REQUESTS=2000
 
-.PHONY: sweep
-
-# Space-separated list of concurrencies to test
-SWEEP_CONC ?= 1 4 16 32 64 128
-
-sweep:
-	@echo "sweep: REQUESTS=$(REQUESTS) WARMUP=$(WARMUP) DEADLINE_MS=$(DEADLINE_MS) RUNS=$(RUNS) TARGET_HOST=$(TARGET_HOST)"
+sweep: ## Sweep concurrency levels
+	@printf "\n$(BOLD)$(YELLOW)sweep$(RESET)  REQUESTS=$(REQUESTS) WARMUP=$(WARMUP) DEADLINE_MS=$(DEADLINE_MS) RUNS=$(RUNS)\n"
 	@for c in $(SWEEP_CONC); do \
-	  echo ""; \
-	  echo "==================== BACKEND  CONCURRENCY=$$c ===================="; \
+	  printf "\n$(BOLD)──── backend  c=$$c ────$(RESET)\n"; \
 	  $(MAKE) --no-print-directory loadgen-backend CONCURRENCY=$$c; \
-	  echo "==================== GATEWAY   CONCURRENCY=$$c ===================="; \
-	  $(MAKE) --no-print-directory loadgen-gw CONCURRENCY=$$c; \
+	  printf "\n$(BOLD)──── gateway  c=$$c ────$(RESET)\n"; \
+	  $(MAKE) --no-print-directory loadgen-gw      CONCURRENCY=$$c; \
 	done
 
-.PHONY: docs docs-build docs-deploy
+## ── Docs ────────────────────────────────────────────────────
 
-docs:
+docs: ## Serve docs locally
 	cd docs && poetry run mkdocs serve
 
-docs-build:
+docs-build: ## Build docs site
 	cd docs && poetry run mkdocs build
 
-docs-deploy:
+docs-deploy: ## Deploy docs to GitHub Pages
 	cd docs && poetry run mkdocs gh-deploy

@@ -63,12 +63,12 @@ jobs:
 
       - name: Build and Push Backend Image
         run: |
-          docker build -t "${{ env.BACKEND_IMAGE }}" -f src/backend/Dockerfile .
+          docker build -t "${{ env.BACKEND_IMAGE }}" -f Dockerfile.backend .
           docker push "${{ env.BACKEND_IMAGE }}"
 
       - name: Build and Push Gateway Image
         run: |
-          docker build -t "${{ env.GATEWAY_IMAGE }}" -f src/gateway/Dockerfile .
+          docker build -t "${{ env.GATEWAY_IMAGE }}" -f Dockerfile.gateway .
           docker push "${{ env.GATEWAY_IMAGE }}"
 
       - name: Terraform Apply (deploy new image tags)
