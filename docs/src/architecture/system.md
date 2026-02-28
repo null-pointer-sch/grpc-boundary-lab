@@ -10,11 +10,10 @@ Backend
 Gateway
 - Port: 50052
 - Accepts the same gRPC API
-- Forwards requests to backend
+- Forwards requests to backend via a gRPC client
 - Introduces an additional network + serialization boundary
 
 Load Generator
-- Blocking gRPC client
-- Uses a fixed thread pool
+- Concurrent gRPC client using goroutines
 - Supports configurable concurrency
 - Reports latency percentiles via HdrHistogram

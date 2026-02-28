@@ -15,7 +15,7 @@ make sweep REQUESTS=50000 CONCURRENCY="1 8 16 32 64 128"
 A single point-in-time benchmark is often misleading. Sweeping across concurrency allows us to:
 
 - **Identify the Knee** — the point where throughput stops growing and latency spikes.
-- **Verify Threading Models** — ensure the `Async` gateway isn’t thread-pool constrained.
+- **Verify Concurrency Models** — ensure the gateway scales under load without bottlenecks.
 - **Establish a Comparative Baseline** — compare single-hop vs double-hop gRPC architectures.
 
 ## Baseline vs Gateway Sweep Results

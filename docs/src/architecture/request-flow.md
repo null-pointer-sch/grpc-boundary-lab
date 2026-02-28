@@ -7,23 +7,23 @@ This page details the journey of a gRPC request through the system.
 ```mermaid
 sequenceDiagram
     participant C as Load Generator
-    participant G as Gateway (Async)
+    participant G as Gateway
     participant B as Backend
 
     C->>G: gRPC Request (unary)
-    Note over G: OnMessage Received
-    G->>B: Forward to Backend (Async Stub)
+    Note over G: Received request
+    G->>B: Forward to Backend (gRPC Client)
     B-->>G: gRPC Response
-    Note over G: OnNext / OnCompleted
-    G-->>C: Forward Response to Client
+    Note over G: Forward response
+    G-->>C: Return Response to Client
 ```
 
-## Async Forwarding Logic
+## Forwarding Logic
 
-The Gateway uses `StreamObserver` to proxy requests. Crucially, it does **not** block a thread while waiting for the backend response. Instead:
+The Gateway uses a `PingServiceClient` to proxy requests to the backend. For each incoming request, it:
 
-1. Receive the incoming request.
-2. Initiate an asynchronous call to the backend.
-3. Register a callback that forwards the result to the original client once available.
+1. Receives the incoming `PingRequest`.
+2. Calls the backend's `Ping` RPC via the client stub.
+3. Returns the backend's response (or wraps any error).
 
-This design allows the Gateway to handle thousands of concurrent requests using a small, fixed-size thread pool.
+This design leverages Go's goroutine-per-request model — each inbound gRPC call is handled in its own goroutine, allowing the gateway to serve thousands of concurrent requests efficiently.
