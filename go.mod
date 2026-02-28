@@ -1,6 +1,6 @@
 module github.com/AndySchubert/grpc-boundary-lab
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.2.0
