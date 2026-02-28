@@ -12,6 +12,7 @@ import (
 	pb "github.com/AndySchubert/grpc-boundary-lab/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -39,6 +40,7 @@ func main() {
 	pb.RegisterPingServiceServer(srv, &gateway.PingProxy{
 		Backend: pb.NewPingServiceClient(backendConn),
 	})
+	reflection.Register(srv)
 
 	go func() {
 		sigCh := make(chan os.Signal, 1)

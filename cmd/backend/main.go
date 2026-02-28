@@ -11,6 +11,7 @@ import (
 
 	pb "github.com/AndySchubert/grpc-boundary-lab/internal/proto"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 type pingServer struct {
@@ -31,6 +32,7 @@ func main() {
 
 	srv := grpc.NewServer()
 	pb.RegisterPingServiceServer(srv, &pingServer{})
+	reflection.Register(srv)
 
 	go func() {
 		sigCh := make(chan os.Signal, 1)
