@@ -23,7 +23,7 @@ The ~300µs added by the gateway is a composite of:
    The request must be deserialized by the gateway and re-serialized for the backend.
 
 3. **Context Switching**  
-   The gateway must hand off the request from the server thread to the client thread (even in the async model).
+   The gateway must hand off the request between goroutines handling inbound and outbound RPCs.
 
 4. **Queueing**  
    Internal gRPC buffers and event loops.

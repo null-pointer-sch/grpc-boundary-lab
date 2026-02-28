@@ -1,6 +1,6 @@
 # Scaling Behavior
 
-This page analyzes how the system scales as concurrency (number of active client threads) increases.
+This page analyzes how the system scales as concurrency (number of active goroutines) increases.
 
 ## Throughput (RPS) Scaling
 
