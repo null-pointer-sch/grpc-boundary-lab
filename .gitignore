@@ -27,13 +27,6 @@ go.work.sum
 site/
 .venv/
 
-# Terraform
-**/.terraform/
-*.tfstate
-*.tfstate.*
-crash.log
-crash.*.log
-
 # Build artifacts
 bin/
 
