@@ -32,7 +32,7 @@ https://AndySchubert.github.io/grpc-boundary-lab/
 
 ## Prerequisites
 
-- Go 1.22+
+- Go 1.26
 - make
 
 Optional:
