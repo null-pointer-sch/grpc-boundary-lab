@@ -26,3 +26,16 @@ go.work.sum
 # Docs
 site/
 .venv/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+.terraform.lock.hcl
+crash.log
+crash.*.log
+
+# Build artifacts
+bin/
