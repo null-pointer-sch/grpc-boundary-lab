@@ -23,7 +23,7 @@ jobs:
     uses: AndySchubert/cicd-templates/.github/workflows/mkdocs-pages.yml@main
     with:
       python-version: "3.12"
-      mkdocs-args: "--config-file docs/mkdocs.yml"
+      working-directory: "docs"
     permissions:
       contents: read
       pages: write
