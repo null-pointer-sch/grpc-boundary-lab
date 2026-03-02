@@ -1,0 +1,72 @@
+name: Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  test:
+    uses: AndySchubert/cicd-templates/.github/workflows/go-ci.yml@main
+    with:
+      go-version: "1.26"
+
+  docs:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: AndySchubert/cicd-templates/.github/workflows/mkdocs-pages.yml@main
+    with:
+      python-version: "3.12"
+      mkdocs-args: "--config-file docs/mkdocs.yml"
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+  build-backend:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: AndySchubert/cicd-templates/.github/workflows/docker-build-push.yml@main
+    with:
+      image-name: "backend"
+      project-id: "grpc-boundary-lab"
+      repo-name: "grpc-boundary-lab-eu"
+      region: "europe-west1"
+      dockerfile-path: "Dockerfile.backend"
+    secrets:
+      GCP_WIF_PROVIDER: "projects/957364549513/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+      GCP_SERVICE_ACCOUNT: "github-actions-deploy@grpc-boundary-lab.iam.gserviceaccount.com"
+
+  build-gateway:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: AndySchubert/cicd-templates/.github/workflows/docker-build-push.yml@main
+    with:
+      image-name: "gateway"
+      project-id: "grpc-boundary-lab"
+      repo-name: "grpc-boundary-lab-eu"
+      region: "europe-west1"
+      dockerfile-path: "Dockerfile.gateway"
+    secrets:
+      GCP_WIF_PROVIDER: "projects/957364549513/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+      GCP_SERVICE_ACCOUNT: "github-actions-deploy@grpc-boundary-lab.iam.gserviceaccount.com"
+
+  deploy-infra:
+    needs: [build-backend, build-gateway]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: AndySchubert/cicd-templates/.github/workflows/terraform-deploy.yml@main
+    with:
+      project-id: "grpc-boundary-lab"
+      region: "europe-west1"
+      artifact-repo-id: "grpc-boundary-lab-eu"
+      working-directory: "deploy/terraform"
+      extra-tf-vars: "-var=\"image_tag_backend=${{ github.sha }}\" -var=\"image_tag_gateway=${{ github.sha }}\""
+    secrets:
+      GCP_WIF_PROVIDER: "projects/957364549513/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+      GCP_SERVICE_ACCOUNT: "github-actions-deploy@grpc-boundary-lab.iam.gserviceaccount.com"
