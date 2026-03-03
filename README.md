@@ -14,10 +14,7 @@ The goal is to quantify:
 - Saturation behavior under load
 - **Protocol Overhead:** Direct comparisons between `gRPC` and `REST` proxies.
 
-Live docs:
-https://AndySchubert.github.io/grpc-boundary-lab/
 
----
 
 ## What's in this repo
 
@@ -101,17 +98,7 @@ Then open the local MkDocs URL printed in the terminal.
 
 ---
 
-## Make targets
 
-- make build
-- make test
-- make vet
-- make backend
-- make gateway
-- make sweep
-- make docs
-
----
 
 ## Status
 
