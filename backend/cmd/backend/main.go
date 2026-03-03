@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,6 +25,7 @@ func (s *pingServer) Ping(_ context.Context, req *pb.PingRequest) (*pb.PingRespo
 
 func main() {
 	port := envOrDefault("BACKEND_PORT", "50051")
+	restPort := envOrDefault("BACKEND_REST_PORT", "8081")
 
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
@@ -34,12 +36,29 @@ func main() {
 	pb.RegisterPingServiceServer(srv, &pingServer{})
 	reflection.Register(srv)
 
+	restMux := http.NewServeMux()
+	restSrv := &restPingServer{addr: ":" + restPort}
+	restMux.HandleFunc("/api/ping", restSrv.handlePing)
+
+	httpServer := &http.Server{
+		Addr:    ":" + restPort,
+		Handler: restMux,
+	}
+
+	go func() {
+		fmt.Printf("backend REST listening on :%s\n", restPort)
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("failed to serve REST: %v", err)
+		}
+	}()
+
 	go func() {
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 		<-sigCh
 		fmt.Fprintln(os.Stderr, "shutting down backend...")
 		srv.GracefulStop()
+		httpServer.Close()
 	}()
 
 	fmt.Printf("backend listening on :%s\n", port)

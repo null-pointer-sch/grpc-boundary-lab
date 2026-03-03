@@ -16,6 +16,7 @@ jobs:
     uses: AndySchubert/cicd-templates/.github/workflows/go-ci.yml@main
     with:
       go-version: "1.26"
+      working-directory: "backend"
 
   docs:
     needs: test
@@ -38,7 +39,7 @@ jobs:
       project-id: "grpc-boundary-lab"
       repo-name: "grpc-boundary-lab-eu"
       region: "europe-west1"
-      dockerfile-path: "Dockerfile.backend"
+      dockerfile-path: "backend/Dockerfile.backend"
     secrets:
       GCP_WIF_PROVIDER: "projects/957364549513/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
       GCP_SERVICE_ACCOUNT: "github-actions-deploy@grpc-boundary-lab.iam.gserviceaccount.com"
@@ -52,7 +53,7 @@ jobs:
       project-id: "grpc-boundary-lab"
       repo-name: "grpc-boundary-lab-eu"
       region: "europe-west1"
-      dockerfile-path: "Dockerfile.gateway"
+      dockerfile-path: "backend/Dockerfile.gateway"
     secrets:
       GCP_WIF_PROVIDER: "projects/957364549513/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
       GCP_SERVICE_ACCOUNT: "github-actions-deploy@grpc-boundary-lab.iam.gserviceaccount.com"
@@ -65,7 +66,7 @@ jobs:
       project-id: "grpc-boundary-lab"
       region: "europe-west1"
       artifact-repo-id: "grpc-boundary-lab-eu"
-      working-directory: "deploy/terraform"
+      working-directory: "backend/deploy/terraform"
       extra-tf-vars: "-var=\"image_tag_backend=${{ github.sha }}\" -var=\"image_tag_gateway=${{ github.sha }}\""
     secrets:
       GCP_WIF_PROVIDER: "projects/957364549513/locations/global/workloadIdentityPools/github-pool/providers/github-provider"

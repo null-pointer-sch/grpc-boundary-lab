@@ -1,10 +1,6 @@
 # ──────────────────────────────────────────────────────────────
-#  grpc-boundary-lab  ·  Makefile
+#  grpc-boundary-lab Master orchestrator  ·  Makefile
 # ──────────────────────────────────────────────────────────────
-
-BIN       := bin
-GO        := go
-MODULE    := ./cmd
 
 # ── Colours ──────────────────────────────────────────────────
 CYAN      := \033[36m
@@ -13,110 +9,69 @@ YELLOW    := \033[33m
 BOLD      := \033[1m
 RESET     := \033[0m
 
-# ── Server defaults ─────────────────────────────────────────
-BACKEND_PORT  ?= 50051
-GATEWAY_PORT  ?= 50052
-TARGET_HOST   ?= 127.0.0.1
-
-# ── Loadgen defaults ────────────────────────────────────────
-REQUESTS    ?= 50000
-WARMUP      ?= 2000
-CONCURRENCY ?= 32
-DEADLINE_MS ?= 20000
-RUNS        ?= 1
-
-# ── Sweep defaults ──────────────────────────────────────────
-SWEEP_CONC  ?= 1 4 16 32 64 128
-
-# ─────────────────────────────────────────────────────────────
-#  Targets
-# ─────────────────────────────────────────────────────────────
-
 .DEFAULT_GOAL := help
-
-.PHONY: help build clean test vet check
-.PHONY: backend gateway
-.PHONY: loadgen loadgen-backend loadgen-gw loadgen-2k sweep
-.PHONY: docs docs-build docs-deploy
-
-## ── Dev ─────────────────────────────────────────────────────
+.PHONY: help install build clean test check run backend gateway frontend loadgen sweep docs docs-deploy
 
 help: ## Show this help
-	@printf "\n$(BOLD)$(CYAN)grpc-boundary-lab$(RESET)\n\n"
+	@printf "\n$(BOLD)$(CYAN)grpc-boundary-lab Orchestrator$(RESET)\n\n"
 	@grep -E '^[a-zA-Z_-]+:.*##' $(MAKEFILE_LIST) | \
 		awk -F ':.*## ' '{printf "  $(GREEN)%-18s$(RESET) %s\n", $$1, $$2}'
-	@printf "\n$(BOLD)Loadgen vars$(RESET) (override with make … VAR=val):\n"
-	@printf "  TARGET_HOST=$(TARGET_HOST)  REQUESTS=$(REQUESTS)  WARMUP=$(WARMUP)\n"
-	@printf "  CONCURRENCY=$(CONCURRENCY)  DEADLINE_MS=$(DEADLINE_MS)  RUNS=$(RUNS)\n\n"
+	@echo ""
 
-build: ## Build all binaries → bin/
-	@printf "$(CYAN)▸ building…$(RESET)\n"
-	@mkdir -p $(BIN)
-	$(GO) build -o $(BIN)/backend  $(MODULE)/backend
-	$(GO) build -o $(BIN)/gateway  $(MODULE)/gateway
-	$(GO) build -o $(BIN)/loadgen  $(MODULE)/loadgen
-	@printf "$(GREEN)✔ binaries in $(BIN)/$(RESET)\n"
+## ── Global targets ──────────────────────────────────────────
 
-clean: ## Remove built binaries
-	rm -rf $(BIN)
+all: install build check run ## Install dependencies, build everything, run checks, and launch all containers
 
-test: ## Run all tests
-	$(GO) test ./...
+run: ## Start all containers in the background via Docker Compose
+	@printf "\n$(BOLD)$(CYAN)Starting all containers$(RESET)\n"
+	docker compose up --build -d
 
-vet: ## Run go vet
-	$(GO) vet ./...
+install: ## Install dependencies (frontend)
+	$(MAKE) -C frontend install
 
-check: test vet ## Run tests + vet
+build: ## Build both backend and frontend
+	@printf "\n$(BOLD)$(CYAN)Building Backend$(RESET)\n"
+	$(MAKE) -C backend build
+	@printf "\n$(BOLD)$(CYAN)Building Frontend$(RESET)\n"
+	$(MAKE) -C frontend build
 
-## ── Servers ─────────────────────────────────────────────────
+clean: ## Clean generated build files across projects
+	$(MAKE) -C backend clean
+	$(MAKE) -C frontend clean
 
-backend: ## Start backend server
-	BACKEND_PORT=$(BACKEND_PORT) $(GO) run $(MODULE)/backend
+test: ## Run tests (backend)
+	$(MAKE) -C backend test
 
-gateway: ## Start gateway server
-	GATEWAY_PORT=$(GATEWAY_PORT) BACKEND_HOST=$(TARGET_HOST) BACKEND_PORT=$(BACKEND_PORT) \
-		$(GO) run $(MODULE)/gateway
+check: ## Run tests and linting
+	$(MAKE) -C backend check
+	# $(MAKE) -C frontend lint # Uncomment when linting is configured
 
-## ── Load generation ─────────────────────────────────────────
+## ── Application Dev ─────────────────────────────────────────
 
-define RUN_LOADGEN
-	WARMUP=$(WARMUP) \
-	CONCURRENCY=$(CONCURRENCY) \
-	DEADLINE_MS=$(DEADLINE_MS) \
-	RUNS=$(RUNS) \
-	REQUESTS=$(REQUESTS) \
-	TARGET_HOST=$(TARGET_HOST) \
-	TARGET_PORT=$(1) \
-	$(GO) run $(MODULE)/loadgen
-endef
+backend: ## Run the backend server
+	$(MAKE) -C backend backend
 
-loadgen: loadgen-backend ## Alias for loadgen-backend
+gateway: ## Run the gateway server
+	$(MAKE) -C backend gateway
 
-loadgen-backend: ## Loadgen → backend (direct)
-	$(call RUN_LOADGEN,$(BACKEND_PORT))
+frontend: ## Run the frontend dev server
+	$(MAKE) -C frontend dev
 
-loadgen-gw: ## Loadgen → gateway (proxy)
-	$(call RUN_LOADGEN,$(GATEWAY_PORT))
+## ── Benchmarking ────────────────────────────────────────────
 
-loadgen-2k: ## Quick 2 k-request run → backend
-	$(MAKE) --no-print-directory loadgen-backend REQUESTS=2000
+loadgen: ## Run the load generator straight to backend
+	$(MAKE) -C backend loadgen
 
-sweep: ## Sweep concurrency levels
-	@printf "\n$(BOLD)$(YELLOW)sweep$(RESET)  REQUESTS=$(REQUESTS) WARMUP=$(WARMUP) DEADLINE_MS=$(DEADLINE_MS) RUNS=$(RUNS)\n"
-	@for c in $(SWEEP_CONC); do \
-	  printf "\n$(BOLD)──── backend  c=$$c ────$(RESET)\n"; \
-	  $(MAKE) --no-print-directory loadgen-backend CONCURRENCY=$$c; \
-	  printf "\n$(BOLD)──── gateway  c=$$c ────$(RESET)\n"; \
-	  $(MAKE) --no-print-directory loadgen-gw      CONCURRENCY=$$c; \
-	done
+loadgen-gw: ## Run the load generator to the gateway proxy
+	$(MAKE) -C backend loadgen-gw
 
-## ── Docs ────────────────────────────────────────────────────
+sweep: ## Run a performance sweep
+	$(MAKE) -C backend sweep
+
+## ── Documentation ───────────────────────────────────────────
 
 docs: ## Serve docs locally
-	cd docs && poetry run mkdocs serve
+	$(MAKE) -C backend docs
 
-docs-build: ## Build docs site
-	cd docs && poetry run mkdocs build
-
-docs-deploy: ## Deploy docs to GitHub Pages
-	cd docs && poetry run mkdocs gh-deploy
+docs-deploy: ## Deploy the documentation
+	$(MAKE) -C backend docs-deploy

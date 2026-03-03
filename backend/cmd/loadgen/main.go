@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -20,6 +22,7 @@ import (
 func main() {
 	host := envOrDefault("TARGET_HOST", "127.0.0.1")
 	port := envOrDefault("TARGET_PORT", "50052")
+	mode := strings.ToLower(envOrDefault("MODE", "grpc"))
 	n := envInt("REQUESTS", 100)
 	c := envInt("CONCURRENCY", 1)
 	warmup := envInt("WARMUP", 2000)
@@ -28,21 +31,34 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%s", host, port)
 
-	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("dial: %v", err)
-	}
-	defer conn.Close()
+	var grpcClient pb.PingServiceClient
+	var httpClient *http.Client
 
-	client := pb.NewPingServiceClient(conn)
+	if mode == "grpc" {
+		conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		if err != nil {
+			log.Fatalf("dial: %v", err)
+		}
+		defer conn.Close()
+		grpcClient = pb.NewPingServiceClient(conn)
+	} else {
+		httpClient = &http.Client{
+			Transport: &http.Transport{
+				MaxIdleConns:        1000,
+				MaxIdleConnsPerHost: c,
+				IdleConnTimeout:     90 * time.Second,
+			},
+			Timeout: time.Duration(deadlineMs) * time.Millisecond,
+		}
+	}
 
 	// Warmup
 	if warmup > 0 {
-		fmt.Printf("warmup: %d requests with concurrency=%d\n", warmup, c)
-		runPhase(client, warmup, c, deadlineMs, false, nil)
+		fmt.Printf("warmup: %d requests overhead (%s) with concurrency=%d\n", warmup, mode, c)
+		runPhase(grpcClient, httpClient, mode, addr, warmup, c, deadlineMs, false, nil)
 	}
 
-	fmt.Println("run,attempted,ok,errors,concurrency,seconds,ok_rps,p50_us,p95_us,p99_us,max_us")
+	fmt.Println("run,mode,attempted,ok,errors,concurrency,seconds,ok_rps,p50_us,p95_us,p99_us,max_us")
 
 	var minRps, maxRps, sumRps float64
 	minRps = math.Inf(1)
@@ -52,13 +68,13 @@ func main() {
 		printExample := r == 1
 
 		t0 := time.Now()
-		ok, errors := runPhase(client, n, c, deadlineMs, printExample, hist)
+		ok, errors := runPhase(grpcClient, httpClient, mode, addr, n, c, deadlineMs, printExample, hist)
 		elapsed := time.Since(t0).Seconds()
 
 		okRps := float64(ok) / elapsed
 
-		fmt.Printf("%d,%d,%d,%d,%d,%.3f,%.2f,%d,%d,%d,%d\n",
-			r, n, ok, errors, c, elapsed, okRps,
+		fmt.Printf("%d,%s,%d,%d,%d,%d,%.3f,%.2f,%d,%d,%d,%d\n",
+			r, mode, n, ok, errors, c, elapsed, okRps,
 			hist.ValueAtQuantile(50.0),
 			hist.ValueAtQuantile(95.0),
 			hist.ValueAtQuantile(99.0),
@@ -80,7 +96,7 @@ func main() {
 	}
 }
 
-func runPhase(client pb.PingServiceClient, n, c int, deadlineMs int64, printExample bool, hist *hdrhistogram.Histogram) (okCount, errCount int64) {
+func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, mode, target string, n, c int, deadlineMs int64, printExample bool, hist *hdrhistogram.Histogram) (okCount, errCount int64) {
 	var wg sync.WaitGroup
 	var ok, errors atomic.Int64
 	var printedErrors atomic.Int32
@@ -103,7 +119,33 @@ func runPhase(client pb.PingServiceClient, n, c int, deadlineMs int64, printExam
 				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(deadlineMs)*time.Millisecond)
 
 				startNs := time.Now()
-				resp, err := client.Ping(ctx, &pb.PingRequest{Message: fmt.Sprintf("hi %d", i)})
+				var err error
+				var val string
+
+				if mode == "grpc" {
+					resp, rErr := grpcClient.Ping(ctx, &pb.PingRequest{Message: fmt.Sprintf("hi %d", i)})
+					err = rErr
+					if err == nil {
+						val = resp.GetMessage()
+					}
+				} else {
+					url := fmt.Sprintf("http://%s/api/ping?message=hi%%20%d", target, i)
+					req, rErr := http.NewRequestWithContext(ctx, "GET", url, nil)
+					if rErr == nil {
+						resp, dErr := httpClient.Do(req)
+						err = dErr
+						if err == nil {
+							if resp.StatusCode != 200 {
+								err = fmt.Errorf("status: %d", resp.StatusCode)
+							}
+							resp.Body.Close()
+							val = "pong (rest)"
+						}
+					} else {
+						err = rErr
+					}
+				}
+
 				cancel()
 
 				if err != nil {
@@ -123,7 +165,7 @@ func runPhase(client pb.PingServiceClient, n, c int, deadlineMs int64, printExam
 					hist.RecordValue(durUs)
 
 					if printExample && workerID == 0 && j == 0 {
-						fmt.Printf("example response: %s\n", resp.GetMessage())
+						fmt.Printf("example response: %s\n", val)
 					}
 				}
 			}

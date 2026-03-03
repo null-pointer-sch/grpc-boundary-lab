@@ -36,3 +36,10 @@ bin/
 *.tfstate.*
 crash.log
 crash.*.log
+
+# Node & Frontend
+node_modules/
+dist/
+.env
+.env.*
+.env.local

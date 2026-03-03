@@ -12,6 +12,7 @@ The goal is to quantify:
 - Throughput degradation
 - Tail-latency amplification (p95 / p99)
 - Saturation behavior under load
+- **Protocol Overhead:** Direct comparisons between `gRPC` and `REST` proxies.
 
 Live docs:
 https://AndySchubert.github.io/grpc-boundary-lab/
@@ -20,12 +21,14 @@ https://AndySchubert.github.io/grpc-boundary-lab/
 
 ## What's in this repo
 
-- cmd/backend/ – gRPC backend service
-- cmd/gateway/ – gRPC gateway that forwards to backend
-- cmd/loadgen/ – load generator with percentile latency tracking (HdrHistogram)
-- gateway/ – gateway proxy logic (testable)
-- internal/proto/ – protobuf definitions and generated code
-- docs/ + mkdocs.yml – documentation site
+- `cmd/backend/` – gRPC & REST backend service
+- `cmd/gateway/` – Gateway proxy that translates or forwards requests
+- `cmd/loadgen/` – Load generator with percentile latency tracking (HdrHistogram) capable of sweeping `gRPC` and `REST`.
+- `frontend/` – React/Vite Dashboard UI to visualize metrics directly.
+- `gateway/` – Gateway proxy routing logic.
+- `internal/proto/` – Protobuf definitions and generated code.
+- `docker-compose.yml` – Local network orchestration.
+- `docs/` + `mkdocs.yml` – Documentation site.
 - Makefile – one-command workflows
 
 ---
@@ -43,29 +46,21 @@ Optional:
 
 ## Quick start
 
-Build everything:
+The fastest way to test the lab locally is using our master `Makefile` orchestrator. It uses Docker Compose to start the Backend, the Gateway, and a React-based Dashboard UI:
 
-    make build
+```bash
+make all
+```
 
-Run tests:
+Once running, navigate to `http://localhost/` in your browser to access the interactive dashboard. You can toggle between tracking `gRPC` proxy latency and standard `REST` proxies.
 
-    make test
+Alternatively, you can run isolated load tests via the CLI:
 
-Start services (two terminals):
+### CLI Sweeps
 
-Terminal A:
-
-    make backend
-
-Terminal B:
-
-    make gateway
-
----
-
-## Run a load sweep
-
-    make sweep REQUESTS=50000 CONCURRENCY="1 16 64"
+```bash
+make sweep REQUESTS=50000 CONCURRENCY="1 16 64"
+```
 
 Suggested quick iteration:
 
@@ -89,6 +84,7 @@ Key indicators:
 - Where p99 latency rises sharply
 - Where throughput plateaus
 - How the gateway shifts the latency knee
+- The performance differences between `gRPC` Multiplexing and traditional HTTP Keep-Alive connection limits.
 
 ---
 
