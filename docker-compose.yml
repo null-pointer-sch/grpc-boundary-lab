@@ -21,7 +21,7 @@ services:
       - GATEWAY_PORT=50052
       - REST_PORT=8080
       - TLS=${TLS:-0}
-      - PROTOCOL=${PROTOCOL:-grpc}
+      - PROTOCOL=${PROTOCOL:-}
     ports:
       - "50052:50052"
       - "8080:8080"

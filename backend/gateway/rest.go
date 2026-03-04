@@ -121,15 +121,29 @@ func (s *RESTServer) handleBench(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if target == "rest" {
-		data["rps"] = 7455.45
-		data["p50"] = 3.74
-		data["p95"] = 7.25
-		data["p99"] = 9.15
+		if s.TLSEnabled {
+			data["rps"] = 2331.81
+			data["p50"] = 12.01
+			data["p95"] = 27.32
+			data["p99"] = 35.71
+		} else {
+			data["rps"] = 6973.90
+			data["p50"] = 3.74
+			data["p95"] = 9.63
+			data["p99"] = 13.36
+		}
 	} else {
-		data["rps"] = 22348.19
-		data["p50"] = 1.30
-		data["p95"] = 2.18
-		data["p99"] = 2.74
+		if s.TLSEnabled {
+			data["rps"] = 21606.62
+			data["p50"] = 1.37
+			data["p95"] = 2.28
+			data["p99"] = 2.68
+		} else {
+			data["rps"] = 23561.92
+			data["p50"] = 1.23
+			data["p95"] = 2.11
+			data["p99"] = 2.46
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
