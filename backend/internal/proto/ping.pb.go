@@ -119,7 +119,7 @@ const file_internal_proto_ping_proto_rawDesc = "" +
 	"\fPingResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage22\n" +
 	"\vPingService\x12#\n" +
-	"\x04Ping\x12\f.PingRequest\x1a\r.PingResponseB:Z8github.com/null-pointer-sch/grpc-boundary-lab/internal/protob\x06proto3"
+	"\x04Ping\x12\f.PingRequest\x1a\r.PingResponseB>Z<github.com/null-pointer-sch/grpc-boundary-lab/internal/protob\x06proto3"
 
 var (
 	file_internal_proto_ping_proto_rawDescOnce sync.Once
