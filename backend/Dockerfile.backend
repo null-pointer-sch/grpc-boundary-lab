@@ -8,5 +8,7 @@ RUN CGO_ENABLED=0 go build -o /backend ./cmd/backend
 FROM alpine:3.19
 COPY --from=builder /backend /backend
 EXPOSE 50051
+EXPOSE 50151
 EXPOSE 8081
+EXPOSE 8181
 ENTRYPOINT ["/backend"]

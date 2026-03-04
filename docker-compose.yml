@@ -7,9 +7,11 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - "50051:50051"
+      - "50151:50151"
       - "8081:8081"
+      - "8181:8181"
     environment:
-      - TLS=${TLS:-0}
+      - TLS=1 # Always enable TLS so certificates are loaded
     volumes:
       - ./certs:/certs:ro
 

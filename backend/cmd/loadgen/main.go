@@ -6,14 +6,13 @@ import (
 	"log"
 	"math"
 	"net/http"
-	"os"
-	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/HdrHistogram/hdrhistogram-go"
+	"github.com/null-pointer-sch/grpc-boundary-lab/internal/envutil"
 	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 	"github.com/null-pointer-sch/grpc-boundary-lab/internal/tlsutil"
 	"google.golang.org/grpc"
@@ -22,16 +21,16 @@ import (
 )
 
 func main() {
-	host := envOrDefault("TARGET_HOST", "127.0.0.1")
-	port := envOrDefault("TARGET_PORT", "50052")
-	mode := strings.ToLower(envOrDefault("MODE", "grpc"))
-	tlsEnabled := envOrDefault("TLS", "0") == "1"
-	certDir := envOrDefault("CERT_DIR", "/certs")
-	n := envInt("REQUESTS", 100)
-	c := envInt("CONCURRENCY", 1)
-	warmup := envInt("WARMUP", 2000)
-	deadlineMs := envInt64("DEADLINE_MS", 20000)
-	runs := envInt("RUNS", 1)
+	host := envutil.GetOrDefault("TARGET_HOST", "127.0.0.1")
+	port := envutil.GetOrDefault("TARGET_PORT", "50052")
+	mode := strings.ToLower(envutil.GetOrDefault("MODE", "grpc"))
+	tlsEnabled := envutil.GetOrDefault("TLS", "0") == "1"
+	certDir := envutil.GetOrDefault("CERT_DIR", "/certs")
+	n := envutil.GetInt("REQUESTS", 100)
+	c := envutil.GetInt("CONCURRENCY", 1)
+	warmup := envutil.GetInt("WARMUP", 2000)
+	deadlineMs := envutil.GetInt64("DEADLINE_MS", 20000)
+	runs := envutil.GetInt("RUNS", 1)
 
 	addr := fmt.Sprintf("%s:%s", host, port)
 
@@ -209,33 +208,4 @@ func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, mode, sc
 
 	wg.Wait()
 	return ok.Load(), errors.Load()
-}
-
-func envOrDefault(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
-}
-
-func envInt(key string, fallback int) int {
-	if v := os.Getenv(key); v != "" {
-		n, err := strconv.Atoi(v)
-		if err != nil {
-			log.Fatalf("invalid %s: %v", key, err)
-		}
-		return n
-	}
-	return fallback
-}
-
-func envInt64(key string, fallback int64) int64 {
-	if v := os.Getenv(key); v != "" {
-		n, err := strconv.ParseInt(v, 10, 64)
-		if err != nil {
-			log.Fatalf("invalid %s: %v", key, err)
-		}
-		return n
-	}
-	return fallback
 }

@@ -1,6 +1,7 @@
 export interface ModeInfo {
     protocol: 'rest' | 'grpc';
     tls: boolean;
+    tlsAvailable: boolean;
 }
 
 export interface PingResponse {

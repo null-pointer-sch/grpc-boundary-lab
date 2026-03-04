@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from './ModeBadge';
+import { cn } from '../utils/cn';
 
 interface StatsCardProps {
     title: string;
@@ -33,9 +33,9 @@ export const StatsCard: React.FC<StatsCardProps> = ({
                 <div>
                     <p className="text-sm font-medium text-zinc-400">{title}</p>
                     <div className="mt-2 flex items-baseline gap-2">
-                        <h3 className="text-3xl font-bold tracking-tight text-zinc-100">{value}</h3>
+                        <h3 className="text-3xl font-bold tracking-tight text-zinc-100 tabular-nums">{value}</h3>
                         {subtitle && (
-                            <span className="text-sm text-zinc-500">{subtitle}</span>
+                            <span className="text-sm text-zinc-500 min-w-[2rem]">{subtitle}</span>
                         )}
                     </div>
                 </div>
