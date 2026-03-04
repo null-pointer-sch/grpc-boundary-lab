@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package coffeeshop;
 
-option go_package = "github.com/AndySchubert/grpc-boundary-lab/tutorial/01-grpc-go-basics/proto;proto";
+option go_package = "github.com/null-pointer-sch/grpc-boundary-lab/tutorial/01-grpc-go-basics/proto;proto";
 
 service CoffeeShop {
     rpc GetMenu(MenuRequest) returns (stream Menu) {}

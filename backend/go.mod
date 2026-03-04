@@ -1,4 +1,4 @@
-module github.com/AndySchubert/grpc-boundary-lab
+module github.com/null-pointer-sch/grpc-boundary-lab
 
 go 1.26.0
 

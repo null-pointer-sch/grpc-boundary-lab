@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	pb "github.com/AndySchubert/grpc-boundary-lab/internal/proto"
+	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 	"github.com/HdrHistogram/hdrhistogram-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

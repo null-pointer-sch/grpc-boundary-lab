@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   test:
-    uses: AndySchubert/cicd-templates/.github/workflows/go-ci.yml@main
+    uses: null-pointer-sch/cicd-templates/.github/workflows/go-ci.yml@main
     with:
       go-version: "1.26"
       working-directory: "backend"
@@ -21,7 +21,7 @@ jobs:
   docs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: AndySchubert/cicd-templates/.github/workflows/mkdocs-pages.yml@main
+    uses: null-pointer-sch/cicd-templates/.github/workflows/mkdocs-pages.yml@main
     with:
       python-version: "3.12"
       working-directory: "docs"
@@ -33,7 +33,7 @@ jobs:
   build-backend:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: AndySchubert/cicd-templates/.github/workflows/docker-build-push.yml@main
+    uses: null-pointer-sch/cicd-templates/.github/workflows/docker-build-push.yml@main
     with:
       image-name: "backend"
       project-id: "grpc-boundary-lab"
@@ -47,7 +47,7 @@ jobs:
   build-gateway:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: AndySchubert/cicd-templates/.github/workflows/docker-build-push.yml@main
+    uses: null-pointer-sch/cicd-templates/.github/workflows/docker-build-push.yml@main
     with:
       image-name: "gateway"
       project-id: "grpc-boundary-lab"
@@ -61,7 +61,7 @@ jobs:
   deploy-infra:
     needs: [build-backend, build-gateway]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: AndySchubert/cicd-templates/.github/workflows/terraform-deploy.yml@main
+    uses: null-pointer-sch/cicd-templates/.github/workflows/terraform-deploy.yml@main
     with:
       project-id: "grpc-boundary-lab"
       region: "europe-west1"

@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/AndySchubert/grpc-boundary-lab/tutorial/01-grpc-go-basics/proto"
+	pb "github.com/null-pointer-sch/grpc-boundary-lab/tutorial/01-grpc-go-basics/proto"
 	"google.golang.org/grpc"
 )
 

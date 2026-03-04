@@ -10,7 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	pb "github.com/AndySchubert/grpc-boundary-lab/internal/proto"
+	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )

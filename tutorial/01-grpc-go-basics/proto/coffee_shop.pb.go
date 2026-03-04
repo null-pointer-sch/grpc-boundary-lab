@@ -326,7 +326,7 @@ const file_proto_coffee_shop_proto_rawDesc = "" +
 	"\aGetMenu\x12\x17.coffeeshop.MenuRequest\x1a\x10.coffeeshop.Menu\"\x000\x01\x126\n" +
 	"\n" +
 	"PlaceOrder\x12\x11.coffeeshop.Order\x1a\x13.coffeeshop.Receipt\"\x00\x12@\n" +
-	"\x0eGetOrderStatus\x12\x13.coffeeshop.Receipt\x1a\x17.coffeeshop.OrderStatus\"\x00BRZPgithub.com/AndySchubert/grpc-boundary-lab/tutorial/01-grpc-go-basics/proto;protob\x06proto3"
+	"\x0eGetOrderStatus\x12\x13.coffeeshop.Receipt\x1a\x17.coffeeshop.OrderStatus\"\x00BRZPgithub.com/null-pointer-sch/grpc-boundary-lab/tutorial/01-grpc-go-basics/proto;protob\x06proto3"
 
 var (
 	file_proto_coffee_shop_proto_rawDescOnce sync.Once

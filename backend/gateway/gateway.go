@@ -3,7 +3,7 @@ package gateway
 import (
 	"context"
 
-	pb "github.com/AndySchubert/grpc-boundary-lab/internal/proto"
+	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

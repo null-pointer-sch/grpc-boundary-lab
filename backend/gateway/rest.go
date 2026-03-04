@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	pb "github.com/AndySchubert/grpc-boundary-lab/internal/proto"
+	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 )
 
 type RESTServer struct {

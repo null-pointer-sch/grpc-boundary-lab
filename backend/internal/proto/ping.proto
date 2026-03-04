@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/AndySchubert/grpc-boundary-lab/internal/proto";
+option go_package = "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto";
 
 service PingService {
   rpc Ping(PingRequest) returns (PingResponse);

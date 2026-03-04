@@ -6,8 +6,8 @@ import (
 	"net"
 	"testing"
 
-	"github.com/AndySchubert/grpc-boundary-lab/gateway"
-	pb "github.com/AndySchubert/grpc-boundary-lab/internal/proto"
+	"github.com/null-pointer-sch/grpc-boundary-lab/gateway"
+	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"

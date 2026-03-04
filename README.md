@@ -88,7 +88,7 @@ Key indicators:
 ## Documentation
 
 Online:
-https://AndySchubert.github.io/grpc-boundary-lab/
+https://null-pointer-sch.github.io/grpc-boundary-lab/
 
 Local:
 

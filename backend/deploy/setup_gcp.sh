@@ -3,7 +3,7 @@ set -e
 
 PROJECT_ID="grpc-boundary-lab"
 BILLING_ACCOUNT="013DA2-4E03AA-7141D8"
-REPO="AndySchubert/grpc-boundary-lab"
+REPO="null-pointer-sch/grpc-boundary-lab"
 REGION="europe-west1"
 SA_NAME="github-actions-deploy"
 POOL_NAME="github-pool"
