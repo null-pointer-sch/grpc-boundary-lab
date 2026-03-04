@@ -6,7 +6,7 @@ import (
 	"net"
 	"testing"
 
-	"github.com/null-pointer-sch/grpc-boundary-lab/gateway"
+	"github.com/null-pointer-sch/grpc-boundary-lab/internal/gateway"
 	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -15,9 +15,8 @@ import (
 
 const bufSize = 1024 * 1024
 
-// mockBackend is a trivial PingService that prepends "mock-pong: ".
+// mockBackend is a trivial BackendClient that prepends "mock-pong: ".
 type mockBackend struct {
-	pb.UnimplementedPingServiceServer
 }
 
 func (m *mockBackend) Ping(_ context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
@@ -28,7 +27,11 @@ func TestGatewayForwarding(t *testing.T) {
 	// --- Start mock backend on bufconn ---
 	backendLis := bufconn.Listen(bufSize)
 	backendSrv := grpc.NewServer()
-	pb.RegisterPingServiceServer(backendSrv, &mockBackend{})
+
+	type mockPingService struct {
+		pb.UnimplementedPingServiceServer
+	}
+	pb.RegisterPingServiceServer(backendSrv, &mockPingService{})
 	go func() {
 		if err := backendSrv.Serve(backendLis); err != nil {
 			log.Fatalf("backend serve: %v", err)
@@ -52,7 +55,7 @@ func TestGatewayForwarding(t *testing.T) {
 	gatewayLis := bufconn.Listen(bufSize)
 	gatewaySrv := grpc.NewServer()
 	pb.RegisterPingServiceServer(gatewaySrv, &gateway.PingProxy{
-		Backend: pb.NewPingServiceClient(backendConn),
+		Backend: &mockBackend{},
 	})
 	go func() {
 		if err := gatewaySrv.Serve(gatewayLis); err != nil {

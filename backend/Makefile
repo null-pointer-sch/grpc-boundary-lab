@@ -110,6 +110,23 @@ loadgen-gw-rest: ## Loadgen → gateway (REST proxy)
 loadgen-2k: ## Quick 2 k-request run → backend
 	$(MAKE) --no-print-directory loadgen-backend REQUESTS=2000
 
+## ── Benchmarks (Gateway Router) ─────────────────────────────
+
+bench-rest: ## Benchmark REST routing to gateway (TLS off)
+	PROTOCOL=rest TLS=0 $(call RUN_LOADGEN,$(GATEWAY_REST_PORT),rest)
+
+bench-rest-tls: ## Benchmark REST routing to gateway (TLS on)
+	PROTOCOL=rest TLS=1 $(call RUN_LOADGEN,$(GATEWAY_REST_PORT),rest)
+
+bench-grpc: ## Benchmark gRPC routing to gateway (TLS off)
+	PROTOCOL=grpc TLS=0 $(call RUN_LOADGEN,$(GATEWAY_PORT),grpc)
+
+bench-grpc-tls: ## Benchmark gRPC routing to gateway (TLS on)
+	PROTOCOL=grpc TLS=1 $(call RUN_LOADGEN,$(GATEWAY_PORT),grpc)
+
+bench-matrix: ## Run all 4 benchmark modes and summarize results
+	bash bench-matrix.sh
+
 sweep: ## Sweep concurrency levels
 	@printf "\n$(BOLD)$(YELLOW)sweep$(RESET)  REQUESTS=$(REQUESTS) WARMUP=$(WARMUP) DEADLINE_MS=$(DEADLINE_MS) RUNS=$(RUNS)\n"
 	@for c in $(SWEEP_CONC); do \

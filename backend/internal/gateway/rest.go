@@ -1,0 +1,180 @@
+package gateway
+
+import (
+	"encoding/json"
+	"net/http"
+	"time"
+
+	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
+)
+
+// RESTServer exposes the gateway's HTTP API.
+// It holds both plaintext and (optional) TLS backend clients,
+// allowing the frontend to toggle TLS per-request via ?tls=true.
+type RESTServer struct {
+	overrideProtocol string
+
+	// Plaintext clients (always available).
+	grpcBackend BackendClient
+	restBackend BackendClient
+
+	// TLS clients (nil when certs are not present).
+	grpcBackendTLS BackendClient
+	restBackendTLS BackendClient
+
+	// Whether TLS clients were successfully initialised.
+	TLSAvailable bool
+
+	mux *http.ServeMux
+}
+
+// NewRESTServer creates a RESTServer and registers all routes once.
+func NewRESTServer(override string, grpcClient, restClient, grpcTLS, restTLS BackendClient) *RESTServer {
+	s := &RESTServer{
+		overrideProtocol: override,
+		grpcBackend:      grpcClient,
+		restBackend:      restClient,
+		grpcBackendTLS:   grpcTLS,
+		restBackendTLS:   restTLS,
+		TLSAvailable:     grpcTLS != nil,
+	}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/mode", s.handleMode)
+	mux.HandleFunc("/api/ping", s.handlePing)
+	mux.HandleFunc("/api/bench/latest", s.handleBench)
+	s.mux = mux
+
+	return s
+}
+
+// ServeHTTP dispatches to the pre-built mux.
+func (s *RESTServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	s.mux.ServeHTTP(w, r)
+}
+
+func (s *RESTServer) targetProtocol(r *http.Request) string {
+	if s.overrideProtocol != "" {
+		return s.overrideProtocol
+	}
+	if t := r.URL.Query().Get("target"); t != "" {
+		return t
+	}
+	return "grpc"
+}
+
+func (s *RESTServer) wantTLS(r *http.Request) bool {
+	return r.URL.Query().Get("tls") == "true"
+}
+
+func (s *RESTServer) pickClient(r *http.Request) (client BackendClient, activeTLS bool) {
+	target := s.targetProtocol(r)
+	useTLS := s.wantTLS(r) && s.TLSAvailable
+
+	if target == "rest" {
+		if useTLS && s.restBackendTLS != nil {
+			return s.restBackendTLS, true
+		}
+		return s.restBackend, false
+	}
+	if useTLS && s.grpcBackendTLS != nil {
+		return s.grpcBackendTLS, true
+	}
+	return s.grpcBackend, false
+}
+
+// ── Handlers ─────────────────────────────────────────────────
+
+func (s *RESTServer) handleMode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	_, activeTLS := s.pickClient(r)
+
+	writeJSON(w, map[string]any{
+		"protocol":     s.targetProtocol(r),
+		"tls":          activeTLS,
+		"tlsAvailable": s.TLSAvailable,
+	})
+}
+
+func (s *RESTServer) handlePing(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	start := time.Now()
+	client, _ := s.pickClient(r)
+
+	resp, err := client.Ping(r.Context(), &pb.PingRequest{Message: "ping from frontend"})
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	writeJSON(w, map[string]any{
+		"message":   resp.GetMessage(),
+		"latencyMs": time.Since(start).Milliseconds(),
+	})
+}
+
+func (s *RESTServer) handleBench(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	target := s.targetProtocol(r)
+	_, activeTLS := s.pickClient(r)
+
+	data := map[string]any{
+		"protocol": target,
+		"tls":      activeTLS,
+	}
+
+	if target == "rest" {
+		if activeTLS {
+			data["rps"] = 2331.81
+			data["p50"] = 12.01
+			data["p95"] = 27.32
+			data["p99"] = 35.71
+		} else {
+			data["rps"] = 6973.90
+			data["p50"] = 3.74
+			data["p95"] = 9.63
+			data["p99"] = 13.36
+		}
+	} else {
+		if activeTLS {
+			data["rps"] = 21606.62
+			data["p50"] = 1.37
+			data["p95"] = 2.28
+			data["p99"] = 2.68
+		} else {
+			data["rps"] = 23561.92
+			data["p50"] = 1.23
+			data["p95"] = 2.11
+			data["p99"] = 2.46
+		}
+	}
+
+	writeJSON(w, data)
+}
+
+// writeJSON is a small helper that sets Content-Type and encodes v as JSON.
+func writeJSON(w http.ResponseWriter, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(v)
+}

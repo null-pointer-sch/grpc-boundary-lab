@@ -1,20 +1,16 @@
 import React from 'react';
 import { Shield, ShieldAlert, Cpu } from 'lucide-react';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { cn } from '../utils/cn';
 import type { ModeInfo } from '../types/api';
-
-/** Utility to merge tailwind classes */
-export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
 
 interface ModeBadgeProps {
     mode: ModeInfo | null;
+    protocol: 'grpc' | 'rest';
+    tlsEnabled: boolean;
     className?: string;
 }
 
-export const ModeBadge: React.FC<ModeBadgeProps> = ({ mode, className }) => {
+export const ModeBadge: React.FC<ModeBadgeProps> = ({ mode, protocol, tlsEnabled, className }) => {
     if (!mode) {
         return (
             <div className={cn("inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-800 text-zinc-400 text-sm font-medium animate-pulse", className)}>
@@ -24,7 +20,7 @@ export const ModeBadge: React.FC<ModeBadgeProps> = ({ mode, className }) => {
         );
     }
 
-    const isGrpc = mode.protocol === 'grpc';
+    const isGrpc = protocol === 'grpc';
 
     return (
         <div className={cn("flex items-center gap-3", className)}>
@@ -44,17 +40,17 @@ export const ModeBadge: React.FC<ModeBadgeProps> = ({ mode, className }) => {
                         isGrpc ? "bg-indigo-500" : "bg-emerald-500"
                     )}></span>
                 </span>
-                {mode.protocol.toUpperCase()}
+                {protocol.toUpperCase()}
             </div>
 
             <div className={cn(
                 "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border",
-                mode.tls
+                tlsEnabled
                     ? "bg-zinc-800/50 text-zinc-300 border-zinc-700/50"
                     : "bg-amber-500/10 text-amber-500 border-amber-500/20"
             )}>
-                {mode.tls ? <Shield size={14} className="text-emerald-500" /> : <ShieldAlert size={14} />}
-                {mode.tls ? 'TLS Enabled' : 'No TLS'}
+                {tlsEnabled ? <Shield size={14} className="text-emerald-500" /> : <ShieldAlert size={14} />}
+                {tlsEnabled ? 'TLS Enabled' : 'No TLS'}
             </div>
         </div>
     );

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             v4.25.1
-// source: internal/proto/ping.proto
+// source: backend/internal/proto/ping.proto
 
 package proto
 
@@ -117,5 +117,5 @@ var PingService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/proto/ping.proto",
+	Metadata: "backend/internal/proto/ping.proto",
 }

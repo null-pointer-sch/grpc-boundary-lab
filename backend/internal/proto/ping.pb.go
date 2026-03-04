@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v4.25.1
-// source: internal/proto/ping.proto
+// source: backend/internal/proto/ping.proto
 
 package proto
 
@@ -30,7 +30,7 @@ type PingRequest struct {
 
 func (x *PingRequest) Reset() {
 	*x = PingRequest{}
-	mi := &file_internal_proto_ping_proto_msgTypes[0]
+	mi := &file_backend_internal_proto_ping_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +42,7 @@ func (x *PingRequest) String() string {
 func (*PingRequest) ProtoMessage() {}
 
 func (x *PingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_ping_proto_msgTypes[0]
+	mi := &file_backend_internal_proto_ping_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +55,7 @@ func (x *PingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PingRequest.ProtoReflect.Descriptor instead.
 func (*PingRequest) Descriptor() ([]byte, []int) {
-	return file_internal_proto_ping_proto_rawDescGZIP(), []int{0}
+	return file_backend_internal_proto_ping_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *PingRequest) GetMessage() string {
@@ -74,7 +74,7 @@ type PingResponse struct {
 
 func (x *PingResponse) Reset() {
 	*x = PingResponse{}
-	mi := &file_internal_proto_ping_proto_msgTypes[1]
+	mi := &file_backend_internal_proto_ping_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -86,7 +86,7 @@ func (x *PingResponse) String() string {
 func (*PingResponse) ProtoMessage() {}
 
 func (x *PingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_proto_ping_proto_msgTypes[1]
+	mi := &file_backend_internal_proto_ping_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -99,7 +99,7 @@ func (x *PingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PingResponse.ProtoReflect.Descriptor instead.
 func (*PingResponse) Descriptor() ([]byte, []int) {
-	return file_internal_proto_ping_proto_rawDescGZIP(), []int{1}
+	return file_backend_internal_proto_ping_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PingResponse) GetMessage() string {
@@ -109,11 +109,11 @@ func (x *PingResponse) GetMessage() string {
 	return ""
 }
 
-var File_internal_proto_ping_proto protoreflect.FileDescriptor
+var File_backend_internal_proto_ping_proto protoreflect.FileDescriptor
 
-const file_internal_proto_ping_proto_rawDesc = "" +
+const file_backend_internal_proto_ping_proto_rawDesc = "" +
 	"\n" +
-	"\x19internal/proto/ping.proto\"'\n" +
+	"!backend/internal/proto/ping.proto\"'\n" +
 	"\vPingRequest\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"(\n" +
 	"\fPingResponse\x12\x18\n" +
@@ -122,23 +122,23 @@ const file_internal_proto_ping_proto_rawDesc = "" +
 	"\x04Ping\x12\f.PingRequest\x1a\r.PingResponseB>Z<github.com/null-pointer-sch/grpc-boundary-lab/internal/protob\x06proto3"
 
 var (
-	file_internal_proto_ping_proto_rawDescOnce sync.Once
-	file_internal_proto_ping_proto_rawDescData []byte
+	file_backend_internal_proto_ping_proto_rawDescOnce sync.Once
+	file_backend_internal_proto_ping_proto_rawDescData []byte
 )
 
-func file_internal_proto_ping_proto_rawDescGZIP() []byte {
-	file_internal_proto_ping_proto_rawDescOnce.Do(func() {
-		file_internal_proto_ping_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_internal_proto_ping_proto_rawDesc), len(file_internal_proto_ping_proto_rawDesc)))
+func file_backend_internal_proto_ping_proto_rawDescGZIP() []byte {
+	file_backend_internal_proto_ping_proto_rawDescOnce.Do(func() {
+		file_backend_internal_proto_ping_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_backend_internal_proto_ping_proto_rawDesc), len(file_backend_internal_proto_ping_proto_rawDesc)))
 	})
-	return file_internal_proto_ping_proto_rawDescData
+	return file_backend_internal_proto_ping_proto_rawDescData
 }
 
-var file_internal_proto_ping_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_internal_proto_ping_proto_goTypes = []any{
+var file_backend_internal_proto_ping_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_backend_internal_proto_ping_proto_goTypes = []any{
 	(*PingRequest)(nil),  // 0: PingRequest
 	(*PingResponse)(nil), // 1: PingResponse
 }
-var file_internal_proto_ping_proto_depIdxs = []int32{
+var file_backend_internal_proto_ping_proto_depIdxs = []int32{
 	0, // 0: PingService.Ping:input_type -> PingRequest
 	1, // 1: PingService.Ping:output_type -> PingResponse
 	1, // [1:2] is the sub-list for method output_type
@@ -148,26 +148,26 @@ var file_internal_proto_ping_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_internal_proto_ping_proto_init() }
-func file_internal_proto_ping_proto_init() {
-	if File_internal_proto_ping_proto != nil {
+func init() { file_backend_internal_proto_ping_proto_init() }
+func file_backend_internal_proto_ping_proto_init() {
+	if File_backend_internal_proto_ping_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_proto_ping_proto_rawDesc), len(file_internal_proto_ping_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_backend_internal_proto_ping_proto_rawDesc), len(file_backend_internal_proto_ping_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_internal_proto_ping_proto_goTypes,
-		DependencyIndexes: file_internal_proto_ping_proto_depIdxs,
-		MessageInfos:      file_internal_proto_ping_proto_msgTypes,
+		GoTypes:           file_backend_internal_proto_ping_proto_goTypes,
+		DependencyIndexes: file_backend_internal_proto_ping_proto_depIdxs,
+		MessageInfos:      file_backend_internal_proto_ping_proto_msgTypes,
 	}.Build()
-	File_internal_proto_ping_proto = out.File
-	file_internal_proto_ping_proto_goTypes = nil
-	file_internal_proto_ping_proto_depIdxs = nil
+	File_backend_internal_proto_ping_proto = out.File
+	file_backend_internal_proto_ping_proto_goTypes = nil
+	file_backend_internal_proto_ping_proto_depIdxs = nil
 }

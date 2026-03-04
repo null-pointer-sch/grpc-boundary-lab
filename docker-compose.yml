@@ -7,7 +7,13 @@ services:
       dockerfile: Dockerfile.backend
     ports:
       - "50051:50051"
+      - "50151:50151"
       - "8081:8081"
+      - "8181:8181"
+    environment:
+      - TLS=1 # Always enable TLS so certificates are loaded
+    volumes:
+      - ./certs:/certs:ro
 
   gateway:
     build:
@@ -18,9 +24,13 @@ services:
       - BACKEND_PORT=50051
       - GATEWAY_PORT=50052
       - REST_PORT=8080
+      - TLS=${TLS:-0}
+      - PROTOCOL=${PROTOCOL:-}
     ports:
       - "50052:50052"
       - "8080:8080"
+    volumes:
+      - ./certs:/certs:ro
     depends_on:
       - backend
 
@@ -28,7 +38,12 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    environment:
+      - TLS=${TLS:-0}
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./certs:/certs:ro
     depends_on:
       - gateway
