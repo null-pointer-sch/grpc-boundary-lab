@@ -40,6 +40,7 @@ jobs:
       repo-name: "grpc-boundary-lab-eu"
       region: "europe-west1"
       dockerfile-path: "backend/Dockerfile.backend"
+      docker-context: "backend"
     secrets:
       GCP_WIF_PROVIDER: "projects/957364549513/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
       GCP_SERVICE_ACCOUNT: "github-actions-deploy@grpc-boundary-lab.iam.gserviceaccount.com"
@@ -54,6 +55,7 @@ jobs:
       repo-name: "grpc-boundary-lab-eu"
       region: "europe-west1"
       dockerfile-path: "backend/Dockerfile.gateway"
+      docker-context: "backend"
     secrets:
       GCP_WIF_PROVIDER: "projects/957364549513/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
       GCP_SERVICE_ACCOUNT: "github-actions-deploy@grpc-boundary-lab.iam.gserviceaccount.com"
