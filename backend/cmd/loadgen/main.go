@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"log"
 	"math"
@@ -14,8 +13,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 	"github.com/HdrHistogram/hdrhistogram-go"
+	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
+	"github.com/null-pointer-sch/grpc-boundary-lab/internal/tlsutil"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
@@ -26,6 +26,7 @@ func main() {
 	port := envOrDefault("TARGET_PORT", "50052")
 	mode := strings.ToLower(envOrDefault("MODE", "grpc"))
 	tlsEnabled := envOrDefault("TLS", "0") == "1"
+	certDir := envOrDefault("CERT_DIR", "/certs")
 	n := envInt("REQUESTS", 100)
 	c := envInt("CONCURRENCY", 1)
 	warmup := envInt("WARMUP", 2000)
@@ -45,7 +46,10 @@ func main() {
 	if mode == "grpc" {
 		var grpcDialOpts []grpc.DialOption
 		if tlsEnabled {
-			tlsConfig := &tls.Config{InsecureSkipVerify: true}
+			tlsConfig, err := tlsutil.LoadClientConfig(certDir + "/ca.crt")
+			if err != nil {
+				log.Fatalf("failed to load client CA cert: %v", err)
+			}
 			grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 		} else {
 			grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -60,11 +64,15 @@ func main() {
 	} else {
 		var transport *http.Transport
 		if tlsEnabled {
+			tlsConfig, err := tlsutil.LoadClientConfig(certDir + "/ca.crt")
+			if err != nil {
+				log.Fatalf("failed to load client CA cert: %v", err)
+			}
 			transport = &http.Transport{
 				MaxIdleConns:        1000,
 				MaxIdleConnsPerHost: c,
 				IdleConnTimeout:     90 * time.Second,
-				TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+				TLSClientConfig:     tlsConfig,
 			}
 		} else {
 			transport = &http.Transport{

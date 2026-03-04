@@ -4,6 +4,7 @@ set -e
 # Automatically run the 4 benchmarks for the Gateway
 export WARMUP=500
 export REQUESTS=5000
+export CERT_DIR=../certs
 
 echo "Building binaries..."
 make build >/dev/null

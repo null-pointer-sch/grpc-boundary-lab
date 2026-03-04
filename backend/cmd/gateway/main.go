@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/tls"
 	"fmt"
 	"log"
 	"net"
@@ -29,6 +28,7 @@ func main() {
 
 	protocol := os.Getenv("PROTOCOL")
 	tlsEnabled := os.Getenv("TLS") == "1"
+	certDir := envOrDefault("CERT_DIR", "/certs")
 
 	backendAddr := fmt.Sprintf("%s:%s", backendHost, backendPort)
 	backendAddrRest := fmt.Sprintf("http://%s:%s", backendHost, backendRestPort)
@@ -41,8 +41,11 @@ func main() {
 	var httpClient *http.Client
 
 	if tlsEnabled {
-		// Use InsecureSkipVerify for lab internal TLS
-		tlsConfig := &tls.Config{InsecureSkipVerify: true}
+		// Use verified TLS config explicitly trusted by our Local CA
+		tlsConfig, err := tlsutil.LoadClientConfig(certDir + "/ca.crt")
+		if err != nil {
+			log.Fatalf("failed to load client CA cert: %v", err)
+		}
 		grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 
 		httpClient = &http.Client{
@@ -86,9 +89,9 @@ func main() {
 	}
 
 	if tlsEnabled {
-		tlsConfig, err := tlsutil.GenerateInMemoryTLSConfig()
+		tlsConfig, err := tlsutil.LoadServerConfig(certDir+"/gateway.crt", certDir+"/gateway.key")
 		if err != nil {
-			log.Fatalf("failed to generate Gateway TLS cert: %v", err)
+			log.Fatalf("failed to load Gateway TLS cert: %v", err)
 		}
 		grpcServerOpts = append(grpcServerOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
 		httpServer.TLSConfig = tlsConfig

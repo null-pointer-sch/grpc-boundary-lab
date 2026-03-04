@@ -29,6 +29,7 @@ func main() {
 	port := envOrDefault("BACKEND_PORT", "50051")
 	restPort := envOrDefault("BACKEND_REST_PORT", "8081")
 	tlsEnabled := envOrDefault("TLS", "0") == "1"
+	certDir := envOrDefault("CERT_DIR", "/certs")
 
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
@@ -46,9 +47,9 @@ func main() {
 	}
 
 	if tlsEnabled {
-		tlsConfig, err := tlsutil.GenerateInMemoryTLSConfig()
+		tlsConfig, err := tlsutil.LoadServerConfig(certDir+"/backend.crt", certDir+"/backend.key")
 		if err != nil {
-			log.Fatalf("failed to generate TLS cert: %v", err)
+			log.Fatalf("failed to load TLS cert: %v", err)
 		}
 		grpcOpts = append(grpcOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
 		httpServer.TLSConfig = tlsConfig

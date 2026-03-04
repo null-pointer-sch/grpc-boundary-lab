@@ -10,6 +10,8 @@ services:
       - "8081:8081"
     environment:
       - TLS=${TLS:-0}
+    volumes:
+      - ./certs:/certs:ro
 
   gateway:
     build:
@@ -25,6 +27,8 @@ services:
     ports:
       - "50052:50052"
       - "8080:8080"
+    volumes:
+      - ./certs:/certs:ro
     depends_on:
       - backend
 
@@ -37,5 +41,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./certs:/certs:ro
     depends_on:
       - gateway
