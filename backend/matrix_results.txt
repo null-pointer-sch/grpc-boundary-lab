@@ -1,0 +1,40 @@
+bash bench-matrix.sh
+Building binaries...
+
+============================================================
+ Benchmarking: Gateway (PROTOCOL=rest, TLS=0)
+============================================================
+PROTOCOL=rest TLS=0 	WARMUP=500 CONCURRENCY=32 DEADLINE_MS=20000 RUNS=1 REQUESTS=5000 TARGET_HOST=127.0.0.1 TARGET_PORT=8080 MODE=rest go run ./cmd/loadgen
+warmup: 500 requests overhead (rest, tls=false) with concurrency=32
+run,mode,attempted,ok,errors,concurrency,seconds,ok_rps,p50_us,p95_us,p99_us,max_us
+example response: pong (rest)
+1,rest,5000,5000,0,32,0.717,6973.90,3747,9631,13367,18623
+
+============================================================
+ Benchmarking: Gateway (PROTOCOL=rest, TLS=1)
+============================================================
+PROTOCOL=rest TLS=1 	WARMUP=500 CONCURRENCY=32 DEADLINE_MS=20000 RUNS=1 REQUESTS=5000 TARGET_HOST=127.0.0.1 TARGET_PORT=8080 MODE=rest go run ./cmd/loadgen
+warmup: 500 requests overhead (rest, tls=true) with concurrency=32
+run,mode,attempted,ok,errors,concurrency,seconds,ok_rps,p50_us,p95_us,p99_us,max_us
+example response: pong (rest)
+1,rest,5000,5000,0,32,2.144,2331.81,12015,27327,35711,47391
+
+============================================================
+ Benchmarking: Gateway (PROTOCOL=grpc, TLS=0)
+============================================================
+PROTOCOL=grpc TLS=0 	WARMUP=500 CONCURRENCY=32 DEADLINE_MS=20000 RUNS=1 REQUESTS=5000 TARGET_HOST=127.0.0.1 TARGET_PORT=50052 MODE=grpc go run ./cmd/loadgen
+warmup: 500 requests overhead (grpc, tls=false) with concurrency=32
+run,mode,attempted,ok,errors,concurrency,seconds,ok_rps,p50_us,p95_us,p99_us,max_us
+example response: pong: hi 0
+1,grpc,5000,5000,0,32,0.212,23561.92,1231,2111,2469,2777
+
+============================================================
+ Benchmarking: Gateway (PROTOCOL=grpc, TLS=1)
+============================================================
+PROTOCOL=grpc TLS=1 	WARMUP=500 CONCURRENCY=32 DEADLINE_MS=20000 RUNS=1 REQUESTS=5000 TARGET_HOST=127.0.0.1 TARGET_PORT=50052 MODE=grpc go run ./cmd/loadgen
+warmup: 500 requests overhead (grpc, tls=true) with concurrency=32
+run,mode,attempted,ok,errors,concurrency,seconds,ok_rps,p50_us,p95_us,p99_us,max_us
+example response: pong: hi 0
+1,grpc,5000,5000,0,32,0.231,21606.62,1378,2285,2685,5635
+
+Done.

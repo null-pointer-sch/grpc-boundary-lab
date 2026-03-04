@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"log"
 	"math"
@@ -16,6 +17,7 @@ import (
 	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 	"github.com/HdrHistogram/hdrhistogram-go"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
@@ -23,6 +25,7 @@ func main() {
 	host := envOrDefault("TARGET_HOST", "127.0.0.1")
 	port := envOrDefault("TARGET_PORT", "50052")
 	mode := strings.ToLower(envOrDefault("MODE", "grpc"))
+	tlsEnabled := envOrDefault("TLS", "0") == "1"
 	n := envInt("REQUESTS", 100)
 	c := envInt("CONCURRENCY", 1)
 	warmup := envInt("WARMUP", 2000)
@@ -33,29 +36,53 @@ func main() {
 
 	var grpcClient pb.PingServiceClient
 	var httpClient *http.Client
+	var scheme string = "http"
+
+	if tlsEnabled {
+		scheme = "https"
+	}
 
 	if mode == "grpc" {
-		conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		var grpcDialOpts []grpc.DialOption
+		if tlsEnabled {
+			tlsConfig := &tls.Config{InsecureSkipVerify: true}
+			grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+		} else {
+			grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		}
+
+		conn, err := grpc.NewClient(addr, grpcDialOpts...)
 		if err != nil {
 			log.Fatalf("dial: %v", err)
 		}
 		defer conn.Close()
 		grpcClient = pb.NewPingServiceClient(conn)
 	} else {
-		httpClient = &http.Client{
-			Transport: &http.Transport{
+		var transport *http.Transport
+		if tlsEnabled {
+			transport = &http.Transport{
 				MaxIdleConns:        1000,
 				MaxIdleConnsPerHost: c,
 				IdleConnTimeout:     90 * time.Second,
-			},
-			Timeout: time.Duration(deadlineMs) * time.Millisecond,
+				TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+			}
+		} else {
+			transport = &http.Transport{
+				MaxIdleConns:        1000,
+				MaxIdleConnsPerHost: c,
+				IdleConnTimeout:     90 * time.Second,
+			}
+		}
+		httpClient = &http.Client{
+			Transport: transport,
+			Timeout:   time.Duration(deadlineMs) * time.Millisecond,
 		}
 	}
 
 	// Warmup
 	if warmup > 0 {
-		fmt.Printf("warmup: %d requests overhead (%s) with concurrency=%d\n", warmup, mode, c)
-		runPhase(grpcClient, httpClient, mode, addr, warmup, c, deadlineMs, false, nil)
+		fmt.Printf("warmup: %d requests overhead (%s, tls=%v) with concurrency=%d\n", warmup, mode, tlsEnabled, c)
+		runPhase(grpcClient, httpClient, mode, scheme, addr, warmup, c, deadlineMs, false, nil)
 	}
 
 	fmt.Println("run,mode,attempted,ok,errors,concurrency,seconds,ok_rps,p50_us,p95_us,p99_us,max_us")
@@ -68,7 +95,7 @@ func main() {
 		printExample := r == 1
 
 		t0 := time.Now()
-		ok, errors := runPhase(grpcClient, httpClient, mode, addr, n, c, deadlineMs, printExample, hist)
+		ok, errors := runPhase(grpcClient, httpClient, mode, scheme, addr, n, c, deadlineMs, printExample, hist)
 		elapsed := time.Since(t0).Seconds()
 
 		okRps := float64(ok) / elapsed
@@ -96,7 +123,7 @@ func main() {
 	}
 }
 
-func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, mode, target string, n, c int, deadlineMs int64, printExample bool, hist *hdrhistogram.Histogram) (okCount, errCount int64) {
+func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, mode, scheme, target string, n, c int, deadlineMs int64, printExample bool, hist *hdrhistogram.Histogram) (okCount, errCount int64) {
 	var wg sync.WaitGroup
 	var ok, errors atomic.Int64
 	var printedErrors atomic.Int32
@@ -129,7 +156,7 @@ func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, mode, ta
 						val = resp.GetMessage()
 					}
 				} else {
-					url := fmt.Sprintf("http://%s/api/ping?message=hi%%20%d", target, i)
+					url := fmt.Sprintf("%s://%s/api/ping?message=hi%%20%d", scheme, target, i)
 					req, rErr := http.NewRequestWithContext(ctx, "GET", url, nil)
 					if rErr == nil {
 						resp, dErr := httpClient.Do(req)

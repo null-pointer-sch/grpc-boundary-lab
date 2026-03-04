@@ -1,10 +1,7 @@
 package gateway
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 	"time"
 
@@ -12,18 +9,18 @@ import (
 )
 
 type RESTServer struct {
-	Backend     pb.PingServiceClient
-	BackendREST string
-	httpClient  *http.Client
+	OverrideProtocol string
+	TLSEnabled       bool
+	GrpcBackend      BackendClient
+	RestBackend      BackendClient
 }
 
-func NewRESTServer(backend pb.PingServiceClient, backendRestAddr string) *RESTServer {
+func NewRESTServer(override string, tlsEnabled bool, grpcClient BackendClient, restClient BackendClient) *RESTServer {
 	return &RESTServer{
-		Backend:     backend,
-		BackendREST: backendRestAddr,
-		httpClient: &http.Client{
-			Timeout: 5 * time.Second,
-		},
+		OverrideProtocol: override,
+		TLSEnabled:       tlsEnabled,
+		GrpcBackend:      grpcClient,
+		RestBackend:      restClient,
 	}
 }
 
@@ -47,20 +44,26 @@ func (s *RESTServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mux.ServeHTTP(w, r)
 }
 
+func (s *RESTServer) getTargetProtocol(r *http.Request) string {
+	target := s.OverrideProtocol
+	if target == "" {
+		target = r.URL.Query().Get("target")
+		if target == "" {
+			target = "grpc"
+		}
+	}
+	return target
+}
+
 func (s *RESTServer) handleMode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	target := r.URL.Query().Get("target")
-	if target == "" {
-		target = "grpc"
-	}
-
 	data := map[string]interface{}{
-		"protocol": target,
-		"tls":      false,
+		"protocol": s.getTargetProtocol(r),
+		"tls":      s.TLSEnabled,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -74,37 +77,24 @@ func (s *RESTServer) handlePing(w http.ResponseWriter, r *http.Request) {
 	}
 
 	start := time.Now()
-	target := r.URL.Query().Get("target")
+	target := s.getTargetProtocol(r)
+
+	var client BackendClient
+	if target == "rest" {
+		client = s.RestBackend
+	} else {
+		client = s.GrpcBackend
+	}
+
+	req := &pb.PingRequest{Message: "ping from frontend"}
+	resp, err := client.Ping(r.Context(), req)
 
 	var msg string
-
-	if target == "rest" {
-		url := fmt.Sprintf("http://%s/api/ping?message=ping%%20from%%20frontend", s.BackendREST)
-		resp, err := s.httpClient.Get(url)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		defer resp.Body.Close()
-
-		body, _ := io.ReadAll(resp.Body)
-		var res map[string]interface{}
-		json.Unmarshal(body, &res)
-		if m, ok := res["message"].(string); ok {
-			msg = m
-		} else {
-			msg = "pong (rest)"
-		}
-	} else {
-		// Call the gRPC backend
-		req := &pb.PingRequest{Message: "ping from frontend"}
-		resp, err := s.Backend.Ping(context.Background(), req)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		msg = resp.GetMessage()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+	msg = resp.GetMessage()
 
 	latency := time.Since(start).Milliseconds()
 
@@ -123,12 +113,11 @@ func (s *RESTServer) handleBench(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	target := r.URL.Query().Get("target")
+	target := s.getTargetProtocol(r)
 
-	// Provide some dummy baseline data simulating the loadgen results for now
 	data := map[string]interface{}{
 		"protocol": target,
-		"tls":      false,
+		"tls":      s.TLSEnabled,
 	}
 
 	if target == "rest" {

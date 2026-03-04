@@ -65,6 +65,25 @@ Suggested quick iteration:
 
 Adjust concurrency levels to observe saturation and latency amplification.
 
+### Matrix Benchmarks
+
+Using the newly implemented transport switches, you can generate a matrix of performance results covering `REST` and `gRPC` with or without `TLS`.
+
+```bash
+make bench-matrix
+```
+
+Example result:
+
+```text
+Mode           RPS      p50      p95      p99
+---------------------------------------------
+REST           7.0k      3ms      9ms     13ms
+REST + TLS     2.3k     12ms     27ms     35ms
+gRPC          23.5k      1ms      2ms      2ms
+gRPC + TLS    21.6k      1ms      2ms      2ms
+```
+
 ---
 
 ## What to look for

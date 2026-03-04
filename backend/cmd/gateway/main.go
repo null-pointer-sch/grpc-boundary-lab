@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log"
 	"net"
@@ -8,10 +9,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/null-pointer-sch/grpc-boundary-lab/gateway"
 	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
+	"github.com/null-pointer-sch/grpc-boundary-lab/internal/tlsutil"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 )
@@ -23,37 +27,88 @@ func main() {
 	backendPort := envOrDefault("BACKEND_PORT", "50051")
 	backendRestPort := envOrDefault("BACKEND_REST_PORT", "8081")
 
-	backendAddr := fmt.Sprintf("%s:%s", backendHost, backendPort)
-	backendAddrRest := fmt.Sprintf("%s:%s", backendHost, backendRestPort)
+	protocol := os.Getenv("PROTOCOL")
+	tlsEnabled := os.Getenv("TLS") == "1"
 
-	backendConn, err := grpc.NewClient(
-		backendAddr,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
+	backendAddr := fmt.Sprintf("%s:%s", backendHost, backendPort)
+	backendAddrRest := fmt.Sprintf("http://%s:%s", backendHost, backendRestPort)
+	if tlsEnabled {
+		backendAddrRest = fmt.Sprintf("https://%s:%s", backendHost, backendRestPort)
+	}
+
+	// 1. Setup Outbound Clients to Backend
+	var grpcDialOpts []grpc.DialOption
+	var httpClient *http.Client
+
+	if tlsEnabled {
+		// Use InsecureSkipVerify for lab internal TLS
+		tlsConfig := &tls.Config{InsecureSkipVerify: true}
+		grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+
+		httpClient = &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: tlsConfig,
+			},
+			Timeout: 5 * time.Second,
+		}
+	} else {
+		grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		httpClient = &http.Client{
+			Timeout: 5 * time.Second,
+		}
+	}
+
+	backendConn, err := grpc.NewClient(backendAddr, grpcDialOpts...)
 	if err != nil {
 		log.Fatalf("failed to connect to backend at %s: %v", backendAddr, err)
 	}
 	defer backendConn.Close()
 
+	grpcBackend := &gateway.GrpcBackendClient{Client: pb.NewPingServiceClient(backendConn)}
+	restBackend := &gateway.RestBackendClient{TargetURL: backendAddrRest, HTTPClient: httpClient}
+
+	// 2. Determine Primary Backend for gRPC proxy based on PROTOCOL env var defaults to gRPC if unset
+	var primaryBackend gateway.BackendClient = grpcBackend
+	if protocol == "rest" {
+		primaryBackend = restBackend
+	}
+
+	// 3. Setup Gateway Inbound Listeners
 	lis, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	srv := grpc.NewServer()
+	var grpcServerOpts []grpc.ServerOption
+	httpServer := &http.Server{
+		Addr:    ":" + restPort,
+		Handler: gateway.NewRESTServer(protocol, tlsEnabled, grpcBackend, restBackend),
+	}
+
+	if tlsEnabled {
+		tlsConfig, err := tlsutil.GenerateInMemoryTLSConfig()
+		if err != nil {
+			log.Fatalf("failed to generate Gateway TLS cert: %v", err)
+		}
+		grpcServerOpts = append(grpcServerOpts, grpc.Creds(credentials.NewTLS(tlsConfig)))
+		httpServer.TLSConfig = tlsConfig
+	}
+
+	srv := grpc.NewServer(grpcServerOpts...)
 	pb.RegisterPingServiceServer(srv, &gateway.PingProxy{
-		Backend: pb.NewPingServiceClient(backendConn),
+		Backend: primaryBackend,
 	})
 	reflection.Register(srv)
 
-	restSrv := &http.Server{
-		Addr:    ":" + restPort,
-		Handler: gateway.NewRESTServer(pb.NewPingServiceClient(backendConn), backendAddrRest),
-	}
-
 	go func() {
-		fmt.Printf("gateway REST listening on :%s\n", restPort)
-		if err := restSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		fmt.Printf("gateway REST listening on :%s (TLS=%v)\n", restPort, tlsEnabled)
+		var err error
+		if tlsEnabled {
+			err = httpServer.ListenAndServeTLS("", "")
+		} else {
+			err = httpServer.ListenAndServe()
+		}
+		if err != nil && err != http.ErrServerClosed {
 			log.Fatalf("failed to serve REST: %v", err)
 		}
 	}()
@@ -64,11 +119,12 @@ func main() {
 		<-sigCh
 		fmt.Fprintln(os.Stderr, "shutting down gateway...")
 		srv.GracefulStop()
-		restSrv.Close()
+		httpServer.Close()
 		backendConn.Close()
 	}()
 
-	fmt.Printf("gateway listening on :%s (forwarding to %s)\n", port, backendAddr)
+	fmt.Printf("gateway gRPC listening on :%s (forwarding to %s, PROTOCOL=%s, TLS=%v)\n",
+		port, backendAddr, protocol, tlsEnabled)
 	if err := srv.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
