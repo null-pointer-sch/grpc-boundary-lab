@@ -1,5 +1,7 @@
 # grpc-boundary-lab
 
+![Dashboard Screenshot](docs/asset/dashboard.png)
+
 A small lab to measure the performance cost of introducing a gRPC gateway boundary in front of a backend service.
 
 It compares two request paths:
