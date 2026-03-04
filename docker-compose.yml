@@ -8,6 +8,8 @@ services:
     ports:
       - "50051:50051"
       - "8081:8081"
+    environment:
+      - TLS=${TLS:-0}
 
   gateway:
     build:
@@ -18,6 +20,8 @@ services:
       - BACKEND_PORT=50051
       - GATEWAY_PORT=50052
       - REST_PORT=8080
+      - TLS=${TLS:-0}
+      - PROTOCOL=${PROTOCOL:-grpc}
     ports:
       - "50052:50052"
       - "8080:8080"
@@ -28,7 +32,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    environment:
+      - TLS=${TLS:-0}
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - gateway
