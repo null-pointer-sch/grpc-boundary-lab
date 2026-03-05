@@ -43,3 +43,8 @@ dist/
 .env
 .env.*
 .env.local
+
+# Certificates
+certs/*.key
+certs/*.crt
+certs/*.srl
