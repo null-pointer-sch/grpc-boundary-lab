@@ -54,9 +54,9 @@ help: ## Show this help
 build: ## Build all binaries → bin/
 	@printf "$(CYAN)▸ building…$(RESET)\n"
 	@mkdir -p $(BIN)
-	$(GO) build -o $(BIN)/backend  $(MODULE)/backend
-	$(GO) build -o $(BIN)/gateway  $(MODULE)/gateway
-	$(GO) build -o $(BIN)/loadgen  $(MODULE)/loadgen
+	$(GO) build -buildvcs=false -o $(BIN)/backend  $(MODULE)/backend
+	$(GO) build -buildvcs=false -o $(BIN)/gateway  $(MODULE)/gateway
+	$(GO) build -buildvcs=false -o $(BIN)/loadgen  $(MODULE)/loadgen
 	@printf "$(GREEN)✔ binaries in $(BIN)/$(RESET)\n"
 
 clean: ## Remove built binaries
