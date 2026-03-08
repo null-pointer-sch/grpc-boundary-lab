@@ -19,11 +19,7 @@ import (
 )
 
 func main() {
-	port := envutil.GetOrDefault("BACKEND_PORT", "50051")
-	portTLS := envutil.GetOrDefault("BACKEND_PORT_TLS", "50151")
-	restPort := envutil.GetOrDefault("BACKEND_REST_PORT", "8081")
-	restPortTLS := envutil.GetOrDefault("BACKEND_REST_PORT_TLS", "8181")
-	certDir := envutil.GetOrDefault("CERT_DIR", "/certs")
+	cfg := envutil.LoadConfig()
 
 	restMux := http.NewServeMux()
 	restHandler := &service.RESTPingHandler{}
@@ -31,26 +27,26 @@ func main() {
 
 	// ── 1. Always start plaintext gRPC + REST ────────────────────────────
 
-	plainLis, err := net.Listen("tcp", ":"+port)
+	plainLis, err := net.Listen("tcp", ":"+cfg.BackendPort)
 	if err != nil {
-		log.Fatalf("backend: failed to listen on :%s: %v", port, err)
+		log.Fatalf("backend: failed to listen on :%s: %v", cfg.BackendPort, err)
 	}
 
 	plainGRPC := grpc.NewServer()
 	pb.RegisterPingServiceServer(plainGRPC, &service.PingServer{})
 	reflection.Register(plainGRPC)
 
-	plainHTTP := &http.Server{Addr: ":" + restPort, Handler: restMux}
+	plainHTTP := &http.Server{Addr: ":" + cfg.BackendRESTPort, Handler: restMux}
 
 	go func() {
-		fmt.Printf("backend gRPC listening on :%s (plain)\n", port)
+		fmt.Printf("backend gRPC listening on :%s (plain)\n", cfg.BackendPort)
 		if err := plainGRPC.Serve(plainLis); err != nil {
 			log.Fatalf("backend: failed to serve gRPC: %v", err)
 		}
 	}()
 
 	go func() {
-		fmt.Printf("backend REST listening on :%s (plain)\n", restPort)
+		fmt.Printf("backend REST listening on :%s (plain)\n", cfg.BackendRESTPort)
 		if err := plainHTTP.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("backend: failed to serve REST: %v", err)
 		}
@@ -58,34 +54,34 @@ func main() {
 
 	// ── 2. Optionally start TLS gRPC + REST (if certs present) ───────────
 
-	tlsConfig, loadErr := tlsutil.LoadServerConfig(certDir+"/backend.crt", certDir+"/backend.key")
+	tlsConfig, loadErr := tlsutil.LoadServerConfig(cfg.CertDir+"/backend.crt", cfg.CertDir+"/backend.key")
 	if loadErr == nil {
-		tlsLis, err := net.Listen("tcp", ":"+portTLS)
+		tlsLis, err := net.Listen("tcp", ":"+cfg.BackendPortTLS)
 		if err != nil {
-			log.Fatalf("backend: failed to listen on TLS port :%s: %v", portTLS, err)
+			log.Fatalf("backend: failed to listen on TLS port :%s: %v", cfg.BackendPortTLS, err)
 		}
 
 		tlsGRPC := grpc.NewServer(grpc.Creds(credentials.NewTLS(tlsConfig)))
 		pb.RegisterPingServiceServer(tlsGRPC, &service.PingServer{})
 		reflection.Register(tlsGRPC)
 
-		tlsHTTP := &http.Server{Addr: ":" + restPortTLS, Handler: restMux, TLSConfig: tlsConfig}
+		tlsHTTP := &http.Server{Addr: ":" + cfg.BackendRESTPortTLS, Handler: restMux, TLSConfig: tlsConfig}
 
 		go func() {
-			fmt.Printf("backend gRPC listening on :%s (TLS)\n", portTLS)
+			fmt.Printf("backend gRPC listening on :%s (TLS)\n", cfg.BackendPortTLS)
 			if err := tlsGRPC.Serve(tlsLis); err != nil {
 				log.Fatalf("backend: failed to serve TLS gRPC: %v", err)
 			}
 		}()
 
 		go func() {
-			fmt.Printf("backend REST listening on :%s (TLS)\n", restPortTLS)
+			fmt.Printf("backend REST listening on :%s (TLS)\n", cfg.BackendRESTPortTLS)
 			if err := tlsHTTP.ListenAndServeTLS("", ""); err != nil && err != http.ErrServerClosed {
 				log.Fatalf("backend: failed to serve TLS REST: %v", err)
 			}
 		}()
 
-		log.Printf("backend TLS listeners active (certs from %s)", certDir)
+		log.Printf("backend TLS listeners active (certs from %s)", cfg.CertDir)
 	} else {
 		log.Printf("backend TLS not available: %v", loadErr)
 	}

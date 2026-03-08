@@ -1,7 +1,7 @@
 import React from 'react';
 import { Shield, ShieldAlert, Cpu } from 'lucide-react';
 import { cn } from '../utils/cn';
-import type { ModeInfo } from '../types/api';
+import type { ModeInfo } from '../core/types/api';
 
 interface ModeBadgeProps {
     mode: ModeInfo | null;

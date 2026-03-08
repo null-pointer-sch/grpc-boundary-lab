@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { api } from '../services/api';
-import type { ModeInfo, BenchmarkStats, PingResponse } from '../types/api';
+import { api } from '../core/services/api';
+import type { ModeInfo, BenchmarkStats, PingResponse } from '../core/types/api';
 
 interface DashboardState {
     mode: ModeInfo | null;

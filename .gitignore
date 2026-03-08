@@ -48,3 +48,7 @@ dist/
 certs/*.key
 certs/*.crt
 certs/*.srl
+
+# AI
+.agents/
+AI_CONTEXT.md

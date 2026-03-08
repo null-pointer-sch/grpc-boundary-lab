@@ -13,19 +13,22 @@ export const apiClient = axios.create({
 export const api = {
     // Get current mode (REST/gRPC + TLS)
     getMode: async (target: 'grpc' | 'rest' = 'grpc', tls: boolean = false): Promise<ModeInfo> => {
-        const { data } = await apiClient.get<ModeInfo>(`/mode?target=${target}&tls=${tls}`);
+        const params = new URLSearchParams({ target, tls: String(tls) });
+        const { data } = await apiClient.get<ModeInfo>(`/mode?${params.toString()}`);
         return data;
     },
 
     // Ping endpoint to test latency
     ping: async (target: 'grpc' | 'rest' = 'grpc', tls: boolean = false): Promise<PingResponse> => {
-        const { data } = await apiClient.get<PingResponse>(`/ping?target=${target}&tls=${tls}`);
+        const params = new URLSearchParams({ target, tls: String(tls) });
+        const { data } = await apiClient.get<PingResponse>(`/ping?${params.toString()}`);
         return data;
     },
 
     // Get latest benchmark run statistics
     getLatestBench: async (target: 'grpc' | 'rest' = 'grpc', tls: boolean = false): Promise<BenchmarkStats> => {
-        const { data } = await apiClient.get<BenchmarkStats>(`/bench/latest?target=${target}&tls=${tls}`);
+        const params = new URLSearchParams({ target, tls: String(tls) });
+        const { data } = await apiClient.get<BenchmarkStats>(`/bench/latest?${params.toString()}`);
         return data;
     },
 };

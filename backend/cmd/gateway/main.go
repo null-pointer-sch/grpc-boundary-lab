@@ -21,21 +21,14 @@ import (
 )
 
 func main() {
-	port := envutil.GetOrDefault("GATEWAY_PORT", "50052")
-	restPort := envutil.GetOrDefault("REST_PORT", "8080")
-	backendHost := envutil.GetOrDefault("BACKEND_HOST", "127.0.0.1")
-	backendPort := envutil.GetOrDefault("BACKEND_PORT", "50051")
-	backendPortTLS := envutil.GetOrDefault("BACKEND_PORT_TLS", "50151")
-	backendRestPort := envutil.GetOrDefault("BACKEND_REST_PORT", "8081")
-	backendRestPortTLS := envutil.GetOrDefault("BACKEND_REST_PORT_TLS", "8181")
+	cfg := envutil.LoadConfig()
 
 	protocol := os.Getenv("PROTOCOL")
-	certDir := envutil.GetOrDefault("CERT_DIR", "/certs")
 
-	backendAddr := fmt.Sprintf("%s:%s", backendHost, backendPort)
-	backendAddrTLS := fmt.Sprintf("%s:%s", backendHost, backendPortTLS)
-	backendAddrRest := fmt.Sprintf("http://%s:%s", backendHost, backendRestPort)
-	backendAddrRestTLS := fmt.Sprintf("https://%s:%s", backendHost, backendRestPortTLS)
+	backendAddr := fmt.Sprintf("%s:%s", cfg.BackendHost, cfg.BackendPort)
+	backendAddrTLS := fmt.Sprintf("%s:%s", cfg.BackendHost, cfg.BackendPortTLS)
+	backendAddrRest := fmt.Sprintf("http://%s:%s", cfg.BackendHost, cfg.BackendRESTPort)
+	backendAddrRestTLS := fmt.Sprintf("https://%s:%s", cfg.BackendHost, cfg.BackendRESTPortTLS)
 
 	// ── 1. Always create plaintext clients ───────────────────────────────
 
@@ -57,7 +50,7 @@ func main() {
 	var grpcTLS gateway.BackendClient
 	var restTLS gateway.BackendClient
 
-	clientTLS, loadErr := tlsutil.LoadClientConfig(certDir + "/ca.crt")
+	clientTLS, loadErr := tlsutil.LoadClientConfig(cfg.CertDir + "/ca.crt")
 	if loadErr == nil {
 		tlsConn, dialErr := grpc.NewClient(backendAddrTLS,
 			grpc.WithTransportCredentials(credentials.NewTLS(clientTLS)))
@@ -75,14 +68,14 @@ func main() {
 				Timeout:   5 * time.Second,
 			},
 		}
-		log.Printf("TLS clients initialised (certs from %s)", certDir)
+		log.Printf("TLS clients initialised (certs from %s)", cfg.CertDir)
 	} else {
-		log.Printf("TLS clients not available (certs not found at %s): %v", certDir, loadErr)
+		log.Printf("TLS clients not available (certs not found at %s): %v", cfg.CertDir, loadErr)
 	}
 
 	// ── 3. Setup Gateway Inbound Listeners ───────────────────────────────
 
-	lis, err := net.Listen("tcp", ":"+port)
+	lis, err := net.Listen("tcp", ":"+cfg.GatewayPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -91,7 +84,7 @@ func main() {
 
 	restServer := gateway.NewRESTServer(protocol, grpcPlain, restPlain, grpcTLS, restTLS)
 	httpServer := &http.Server{
-		Addr:    ":" + restPort,
+		Addr:    ":" + cfg.GatewayRESTPort,
 		Handler: restServer,
 	}
 
@@ -108,7 +101,7 @@ func main() {
 	reflection.Register(srv)
 
 	go func() {
-		fmt.Printf("gateway REST listening on :%s (TLS-toggle=%v)\n", restPort, grpcTLS != nil)
+		fmt.Printf("gateway REST listening on :%s (TLS-toggle=%v)\n", cfg.GatewayRESTPort, grpcTLS != nil)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("failed to serve REST: %v", err)
 		}
@@ -124,7 +117,7 @@ func main() {
 	}()
 
 	fmt.Printf("gateway gRPC listening on :%s (forwarding to %s, PROTOCOL=%s)\n",
-		port, backendAddr, protocol)
+		cfg.GatewayPort, backendAddr, protocol)
 	if err := srv.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

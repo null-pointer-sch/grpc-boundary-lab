@@ -9,7 +9,7 @@ import {
     Cell,
     ReferenceLine,
 } from 'recharts';
-import type { BenchmarkStats } from '../types/api';
+import type { BenchmarkStats } from '../core/types/api';
 
 interface LatencyChartProps {
     stats: BenchmarkStats | null;

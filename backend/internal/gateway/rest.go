@@ -25,7 +25,8 @@ type RESTServer struct {
 	// Whether TLS clients were successfully initialised.
 	TLSAvailable bool
 
-	mux *http.ServeMux
+	stats *StatsProvider
+	mux   *http.ServeMux
 }
 
 // NewRESTServer creates a RESTServer and registers all routes once.
@@ -37,6 +38,7 @@ func NewRESTServer(override string, grpcClient, restClient, grpcTLS, restTLS Bac
 		grpcBackendTLS:   grpcTLS,
 		restBackendTLS:   restTLS,
 		TLSAvailable:     grpcTLS != nil,
+		stats:            NewStatsProvider(),
 	}
 
 	mux := http.NewServeMux()
@@ -96,7 +98,7 @@ func (s *RESTServer) pickClient(r *http.Request) (client BackendClient, activeTL
 
 func (s *RESTServer) handleMode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
@@ -111,7 +113,7 @@ func (s *RESTServer) handleMode(w http.ResponseWriter, r *http.Request) {
 
 func (s *RESTServer) handlePing(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
@@ -120,7 +122,7 @@ func (s *RESTServer) handlePing(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := client.Ping(r.Context(), &pb.PingRequest{Message: "ping from frontend"})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -132,42 +134,17 @@ func (s *RESTServer) handlePing(w http.ResponseWriter, r *http.Request) {
 
 func (s *RESTServer) handleBench(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
 	target := s.targetProtocol(r)
 	_, activeTLS := s.pickClient(r)
 
-	data := map[string]any{
-		"protocol": target,
-		"tls":      activeTLS,
-	}
-
-	if target == "rest" {
-		if activeTLS {
-			data["rps"] = 2331.81
-			data["p50"] = 12.01
-			data["p95"] = 27.32
-			data["p99"] = 35.71
-		} else {
-			data["rps"] = 6973.90
-			data["p50"] = 3.74
-			data["p95"] = 9.63
-			data["p99"] = 13.36
-		}
-	} else {
-		if activeTLS {
-			data["rps"] = 21606.62
-			data["p50"] = 1.37
-			data["p95"] = 2.28
-			data["p99"] = 2.68
-		} else {
-			data["rps"] = 23561.92
-			data["p50"] = 1.23
-			data["p95"] = 2.11
-			data["p99"] = 2.46
-		}
+	data, ok := s.stats.GetStats(target, activeTLS)
+	if !ok {
+		WriteErrorMessage(w, http.StatusNotFound, "Stats not found")
+		return
 	}
 
 	writeJSON(w, data)
