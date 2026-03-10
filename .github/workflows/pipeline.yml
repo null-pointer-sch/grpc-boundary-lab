@@ -54,7 +54,7 @@ jobs:
       - name: Unit & Integration Tests
         shell: bash
         run: |
-          cd backend && go test -v -coverprofile=coverage.out ./... &
+          cd backend && go test -v -json -coverprofile=coverage.out ./... > report.json &
           # Frontend tests can be added here once defined
           wait
 
