@@ -20,13 +20,15 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         backgroundAttachment: 'fixed'
       }}
     >
-      <div className="relative z-10 flex w-full">
-        <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+      <div className="relative z-10 flex w-full p-6 gap-6 max-w-[1920px] mx-auto">
+        <div className="rounded-xl overflow-hidden shadow-2xl flex-shrink-0">
+          <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+        </div>
         
-        <div className="flex-1 flex flex-col min-w-0 bg-[#F4EBE1]/90 backdrop-blur-sm">
+        <div className="flex-1 flex flex-col min-w-0 bg-[#F4EBE1] rounded-xl overflow-hidden shadow-2xl">
           <TopBar />
           
-          <main className="flex-1 overflow-auto p-2">
+          <main className="flex-1 overflow-auto p-8">
             {children}
           </main>
           
