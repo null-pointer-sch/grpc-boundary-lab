@@ -99,6 +99,13 @@ func TestRESTServer_Errors(t *testing.T) {
 		server.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusMethodNotAllowed, w.Result().StatusCode)
 	}
+
+	// Test Stats Not Found
+	// The dummy server has no stats seeded for 'invalid'
+	req := httptest.NewRequest(http.MethodGet, "/api/bench/latest?target=invalid", nil)
+	w := httptest.NewRecorder()
+	server.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
 }
 
 func TestRESTServer_PickClient(t *testing.T) {

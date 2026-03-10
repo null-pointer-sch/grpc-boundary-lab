@@ -1,0 +1,48 @@
+
+> frontend@0.0.0 test
+> vitest run --coverage
+
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90m/home/andys/Work/JobSearch/Portfolio/grpc-boundary-lab/frontend[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [32m✓[39m src/utils/cn.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m src/hooks/useDashboard.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 37[2mms[22m[39m
+ [32m✓[39m src/core/services/api.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m src/components/ModeBadge.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m src/App.test.tsx [2m([22m[2m1 test[22m[2m)[22m[32m 134[2mms[22m[39m
+ [32m✓[39m src/pages/Dashboard.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 122[2mms[22m[39m
+ [32m✓[39m src/components/layout/Sidebar.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[33m 497[2mms[22m[39m
+     [33m[2m✓[22m[39m renders with navigation links [33m 343[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[32m20 passed[39m[22m[90m (20)[39m
+[2m   Start at [22m 22:42:56
+[2m   Duration [22m 1.73s[2m (transform 712ms, setup 1.07s, import 1.76s, tests 880ms, environment 3.81s)[22m
+
+[34m % [39m[2mCoverage report from [22m[33mv8[39m
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   87.28 |    79.34 |   69.69 |   89.09 |                   
+ src               |     100 |      100 |     100 |     100 |                   
+  App.tsx          |     100 |      100 |     100 |     100 |                   
+ src/components    |   93.33 |      100 |      80 |   92.85 |                   
+  LatencyChart.tsx |   88.88 |      100 |   66.66 |    87.5 | 55                
+  ModeBadge.tsx    |     100 |      100 |     100 |     100 |                   
+  StatsCard.tsx    |     100 |      100 |     100 |     100 |                   
+ ...ponents/layout |   91.66 |       75 |   83.33 |   91.66 |                   
+  AppShell.tsx     |     100 |      100 |     100 |     100 |                   
+  Sidebar.tsx      |   85.71 |       75 |      75 |   85.71 | 44                
+  TopBar.tsx       |     100 |      100 |     100 |     100 |                   
+ src/core/services |     100 |      100 |     100 |     100 |                   
+  api.ts           |     100 |      100 |     100 |     100 |                   
+ src/core/types    |       0 |        0 |       0 |       0 |                   
+  api.ts           |       0 |        0 |       0 |       0 |                   
+ src/hooks         |   89.39 |    68.75 |   77.77 |   93.22 |                   
+  useDashboard.ts  |   89.39 |    68.75 |   77.77 |   93.22 | 88,100-101,112    
+ src/pages         |   45.45 |    73.68 |      25 |   45.45 |                   
+  Dashboard.tsx    |   45.45 |    73.68 |      25 |   45.45 | 67-161            
+ src/utils         |     100 |      100 |     100 |     100 |                   
+  cn.ts            |     100 |      100 |     100 |     100 |                   
+-------------------|---------|----------|---------|---------|-------------------
