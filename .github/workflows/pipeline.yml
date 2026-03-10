@@ -1,4 +1,4 @@
-name: Pipeline
+# Pipeline - Parallelized with SonarToken verified
 
 on:
   push:
