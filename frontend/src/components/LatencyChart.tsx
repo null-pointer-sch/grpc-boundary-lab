@@ -16,9 +16,9 @@ interface LatencyChartProps {
 }
 
 const COLORS = {
-    p50: '#00758F', // Redwood Teal
-    p95: '#7F2257', // Redwood Plum
-    p99: '#C74634', // Redwood Red
+    p50: '#00758F', 
+    p95: '#7F2257', 
+    p99: '#C74634', 
 } as const;
 
 const EMPTY_DATA = [
@@ -47,7 +47,7 @@ export const LatencyChart: React.FC<LatencyChartProps> = ({ stats }) => {
                 >
                     <defs>
                         {Object.entries(COLORS).map(([key, color]) => (
-                            <linearGradient key={key} id={`redwood-art-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient key={key} id={`brand-art-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stopColor={color} stopOpacity={0.9} />
                                 <stop offset="100%" stopColor={color} stopOpacity={0.3} />
                             </linearGradient>
@@ -96,7 +96,7 @@ export const LatencyChart: React.FC<LatencyChartProps> = ({ stats }) => {
                         {data.map((entry) => (
                             <Cell
                                 key={entry.name}
-                                fill={`url(#redwood-art-grad-${entry.name.toLowerCase()})`}
+                                fill={`url(#brand-art-grad-${entry.name.toLowerCase()})`}
                                 stroke={entry.color}
                                 strokeWidth={3}
                                 strokeOpacity={0.2}

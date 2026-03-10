@@ -1,36 +1,39 @@
 @import "tailwindcss";
 
+/* || THEME TOKENS */
 @theme {
   --font-sans: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   
-  /* Oracle Redwood Color Palette */
-  --color-redwood-red: #C74634;        /* Oracle Red */
-  --color-redwood-red-light: #E0614C;
-  --color-redwood-pine: #234E46;       /* OCI / Database */
-  --color-redwood-pine-light: #306B60;
-  --color-redwood-teal: #00758F;       /* ERP / SCM */
-  --color-redwood-rose: #A32D65;       /* HCM */
-  --color-redwood-plum: #7F2257;       /* CX */
+  /* Brand Palette - Humble & Neutral */
+  --color-primary: #C74634;        
+  --color-primary-light: #E0614C;
+  --color-secondary: #234E46;      
+  --color-secondary-light: #306B60;
+  --color-accent-teal: #00758F;    
+  --color-accent-rose: #A32D65;    
+  --color-accent-plum: #7F2257;    
   
-  /* Warmer Backgrounds */
-  --color-redwood-bg: #F9F8F7;         /* Very light warm cream */
-  --color-redwood-surface: #FFFFFF;
-  --color-redwood-border: #EBE9E7;
-  --color-redwood-text: #312D2A;
-  --color-redwood-text-muted: #645F5B;
+  /* Surface & Backgrounds */
+  --color-app-bg: #F9F8F7;         
+  --color-app-surface: #FFFFFF;
+  --color-app-border: #EBE9E7;
+  --color-app-text: #312D2A;
+  --color-app-text-muted: #645F5B;
   
-  /* Deep Redwood Accents */
-  --color-redwood-accent-bg: #EBE9E7;
-  --color-redwood-accent-hover: #D8D4D0;
+  /* UI Accents */
+  --color-ui-accent-bg: #EBE9E7;
+  --color-ui-accent-hover: #D8D4D0;
 
-  --shadow-redwood-sm: 0 2px 4px rgba(49, 45, 42, 0.05);
-  --shadow-redwood-md: 0 4px 12px rgba(49, 45, 42, 0.08);
-  --shadow-redwood-lg: 0 12px 24px rgba(49, 45, 42, 0.12);
+  /* Elevations */
+  --shadow-brand-sm: 0 2px 4px rgba(49, 45, 42, 0.05);
+  --shadow-brand-md: 0 4px 12px rgba(49, 45, 42, 0.08);
+  --shadow-brand-lg: 0 12px 24px rgba(49, 45, 42, 0.12);
 }
 
+/* || GENERAL STYLES */
 @layer base {
   body {
-    @apply bg-[#F9F8F7] text-redwood-text antialiased min-h-screen selection:bg-redwood-red/10;
+    @apply bg-[#F9F8F7] text-app-text antialiased min-h-screen selection:bg-primary/10;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     background-image: url('/redwood-bg-light.png');
     background-size: cover;
@@ -40,46 +43,56 @@
   }
 }
 
+/* || UTILITIES */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* || COMPONENTS */
 @layer components {
-  /* Ultra-Authentic Redwood Cards */
-  .redwood-card {
-    @apply bg-white/90 backdrop-blur-3xl border border-white/60 rounded-[32px] shadow-redwood-md hover:shadow-redwood-lg transition-all duration-700 overflow-hidden;
+  /* Humble Display Cards */
+  .brand-card {
+    @apply bg-white/90 backdrop-blur-3xl border border-white/60 rounded-[32px] shadow-brand-md hover:shadow-brand-lg transition-all duration-700 overflow-hidden;
   }
   
-  .redwood-segmented-control {
+  /* Segmented Navigation */
+  .brand-segmented-control {
     @apply flex p-1.5 bg-[#EBE9E7]/40 backdrop-blur-xl rounded-[20px] border border-[#EBE9E7]/60 shadow-inner;
   }
 
-  .redwood-segmented-item {
+  .brand-segmented-item {
     @apply px-6 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] rounded-[14px] transition-all duration-500 ease-out;
   }
 
-  .redwood-segmented-item-active {
-    @apply bg-white text-redwood-text shadow-xl shadow-black/5 transform scale-[1.02];
+  .brand-segmented-item-active {
+    @apply bg-white text-app-text shadow-xl shadow-black/5 transform scale-[1.02];
   }
 
-  .redwood-segmented-item-inactive {
-    @apply text-redwood-text-muted hover:text-redwood-text hover:bg-white/40;
+  .brand-segmented-item-inactive {
+    @apply text-app-text-muted hover:text-app-text hover:bg-white/40;
   }
   
-  .redwood-button-primary {
-    @apply bg-redwood-red text-white font-black uppercase tracking-[0.3em] py-4.5 px-12 rounded-[24px] hover:bg-redwood-red-light transition-all duration-500 shadow-2xl shadow-redwood-red/20 active:scale-[0.98] hover:-translate-y-1.5;
+  /* Action Elements */
+  .brand-button-primary {
+    @apply bg-primary text-white font-black uppercase tracking-[0.3em] py-4.5 px-12 rounded-[24px] hover:bg-primary-light transition-all duration-500 shadow-2xl shadow-primary/20 active:scale-[0.98] hover:-translate-y-1.5;
   }
   
-  .redwood-button-ghost {
-    @apply flex items-center gap-2.5 rounded-[18px] bg-white/60 backdrop-blur-md px-6 py-3 text-[10px] font-black uppercase tracking-[0.4em] text-redwood-text border border-white shadow-sm transition-all hover:bg-white active:scale-95;
+  .brand-button-ghost {
+    @apply flex items-center gap-2.5 rounded-[18px] bg-white/60 backdrop-blur-md px-6 py-3 text-[10px] font-black uppercase tracking-[0.4em] text-app-text border border-white shadow-sm transition-all hover:bg-white active:scale-95;
   }
 
-  /* Softened Glass Badges */
-  .redwood-glass-badge {
+  /* Status Indicators */
+  .brand-glass-badge {
     @apply backdrop-blur-2xl border border-white shadow-xl bg-white/40;
   }
 
-  /* Nature-inspired Gradient Accents */
-  .redwood-grad-pine {
+  /* Decorative Accents */
+  .brand-grad-secondary {
     background: linear-gradient(135deg, #234E46 0%, #306B60 100%);
   }
-  .redwood-grad-red {
+  .brand-grad-primary {
     background: linear-gradient(135deg, #C74634 0%, #E0614C 100%);
   }
 }
