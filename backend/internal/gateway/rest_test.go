@@ -31,7 +31,7 @@ func TestRESTServer_Mode(t *testing.T) {
 	restClient := &mockBackendClient{Response: "rest"}
 
 	server := gateway.NewRESTServer("", grpcClient, restClient, nil, nil)
-	
+
 	// Test target fallback to grpc
 	req := httptest.NewRequest(http.MethodGet, "/api/mode", nil)
 	w := httptest.NewRecorder()

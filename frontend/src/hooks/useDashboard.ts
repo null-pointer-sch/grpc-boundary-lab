@@ -31,8 +31,8 @@ export function useDashboard(): DashboardState & DashboardActions {
     const tlsRef = useRef<boolean>(false);
 
     // We still keep them in React state simply to drive the UI highlights on the buttons.
-    const [protocol, _setProtocol] = useState<'grpc' | 'rest'>('grpc');
-    const [tlsEnabled, _setTlsEnabled] = useState(false);
+    const [protocol, setProtocol] = useState<'grpc' | 'rest'>('grpc');
+    const [tlsEnabled, setTlsEnabled] = useState(false);
 
     const [loading, setLoading] = useState(true);
     const [fetchingStats, setFetchingStats] = useState(false);
@@ -70,17 +70,17 @@ export function useDashboard(): DashboardState & DashboardActions {
     }, []);
 
     // Directly bind the toggle actions to initiate the fetch immediately, bypassing useEffect delays.
-    const setProtocol = useCallback((p: 'grpc' | 'rest') => {
+    const handleSetProtocol = useCallback((p: 'grpc' | 'rest') => {
         if (p === protocolRef.current) return;
         protocolRef.current = p;
-        _setProtocol(p);
+        setProtocol(p);
         fetchAll(p, tlsRef.current, false);
     }, [fetchAll]);
 
-    const setTlsEnabled = useCallback((tls: boolean) => {
+    const handleSetTlsEnabled = useCallback((tls: boolean) => {
         if (tls === tlsRef.current) return;
         tlsRef.current = tls;
-        _setTlsEnabled(tls);
+        setTlsEnabled(tls);
         fetchAll(protocolRef.current, tls, false);
     }, [fetchAll]);
 
@@ -119,6 +119,6 @@ export function useDashboard(): DashboardState & DashboardActions {
         mode, stats, pingResult,
         protocol, tlsEnabled,
         loading, fetchingStats, pinging, error,
-        setProtocol, setTlsEnabled, refresh, handlePing,
+        setProtocol: handleSetProtocol, setTlsEnabled: handleSetTlsEnabled, refresh, handlePing,
     };
 }

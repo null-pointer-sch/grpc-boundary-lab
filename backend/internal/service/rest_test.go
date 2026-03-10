@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/null-pointer-sch/grpc-boundary-lab/internal/httputil"
-	"github.com/null-pointer-sch/grpc-boundary-lab/internal/service"
 	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
+	"github.com/null-pointer-sch/grpc-boundary-lab/internal/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

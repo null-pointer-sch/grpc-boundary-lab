@@ -25,10 +25,10 @@ func generateTestCertAndKey(t *testing.T) (string, string) {
 		Subject: pkix.Name{
 			Organization: []string{"Acme Co"},
 		},
-		NotBefore: time.Now(),
-		NotAfter:  time.Now().Add(time.Hour * 24),
-		KeyUsage:  x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		IsCA:      true,
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().Add(time.Hour * 24),
+		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		IsCA:                  true,
 		BasicConstraintsValid: true,
 	}
 
@@ -84,7 +84,7 @@ func TestLoadClientConfig_InvalidCert(t *testing.T) {
 	badCertFile, err := os.CreateTemp("", "badcert-*.pem")
 	require.NoError(t, err)
 	defer os.Remove(badCertFile.Name())
-	
+
 	badCertFile.WriteString("NOT A REAL CERTIFICATE")
 	badCertFile.Close()
 

@@ -43,7 +43,7 @@ type unencodable struct {
 
 func TestWriteJSON_Error(t *testing.T) {
 	w := httptest.NewRecorder()
-	
+
 	// attempt to encode something un-encodable to trigger the true error path
 	httputil.WriteJSON(w, unencodable{Ch: make(chan int)})
 

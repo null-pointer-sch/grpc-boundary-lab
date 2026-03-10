@@ -37,6 +37,8 @@ run_benchmark() {
     kill $BACKEND_PID
     wait $GATEWAY_PID 2>/dev/null || true
     wait $BACKEND_PID 2>/dev/null || true
+    
+    return 0
 }
 
 # Run the 4 combinations

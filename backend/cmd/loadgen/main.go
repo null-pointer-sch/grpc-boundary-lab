@@ -41,10 +41,14 @@ func main() {
 		scheme = "https"
 	}
 
+	cfg := PhaseConfig{Mode: mode, Scheme: scheme, Target: addr, C: c, DeadlineMs: deadlineMs}
+
 	// Warmup
 	if warmup > 0 {
 		fmt.Printf("warmup: %d requests overhead (%s, tls=%v) with concurrency=%d\n", warmup, mode, tlsEnabled, c)
-		runPhase(grpcClient, httpClient, PhaseConfig{Mode: mode, Scheme: scheme, Target: addr, N: warmup, C: c, DeadlineMs: deadlineMs, PrintExample: false}, nil)
+		wCfg := cfg
+		wCfg.N = warmup
+		runPhase(grpcClient, httpClient, wCfg, nil)
 	}
 
 	fmt.Println("run,mode,attempted,ok,errors,concurrency,seconds,ok_rps,p50_us,p95_us,p99_us,max_us")
@@ -52,37 +56,43 @@ func main() {
 	var minRps, maxRps, sumRps float64
 	minRps = math.Inf(1)
 
+	cfg.N = n
+
 	for r := 1; r <= runs; r++ {
-		hist := hdrhistogram.New(1, 60_000_000, 3) // micros
-		printExample := r == 1
-
-		t0 := time.Now()
-		ok, errors := runPhase(grpcClient, httpClient, PhaseConfig{Mode: mode, Scheme: scheme, Target: addr, N: n, C: c, DeadlineMs: deadlineMs, PrintExample: printExample}, hist)
-		elapsed := time.Since(t0).Seconds()
-
-		okRps := float64(ok) / elapsed
-
-		fmt.Printf("%d,%s,%d,%d,%d,%d,%.3f,%.2f,%d,%d,%d,%d\n",
-			r, mode, n, ok, errors, c, elapsed, okRps,
-			hist.ValueAtQuantile(50.0),
-			hist.ValueAtQuantile(95.0),
-			hist.ValueAtQuantile(99.0),
-			hist.Max(),
-		)
-
-		if okRps < minRps {
-			minRps = okRps
-		}
-		if okRps > maxRps {
-			maxRps = okRps
-		}
-		sumRps += okRps
+		executeRun(r, cfg, grpcClient, httpClient, &minRps, &maxRps, &sumRps)
 	}
 
 	if runs > 1 {
 		fmt.Printf("ok_rps summary: avg=%.2f min=%.2f max=%.2f\n",
 			sumRps/float64(runs), minRps, maxRps)
 	}
+}
+
+func executeRun(r int, cfg PhaseConfig, grpcClient pb.PingServiceClient, httpClient *http.Client, minRps, maxRps, sumRps *float64) {
+	hist := hdrhistogram.New(1, 60_000_000, 3) // micros
+	cfg.PrintExample = (r == 1)
+
+	t0 := time.Now()
+	ok, errors := runPhase(grpcClient, httpClient, cfg, hist)
+	elapsed := time.Since(t0).Seconds()
+
+	okRps := float64(ok) / elapsed
+
+	fmt.Printf("%d,%s,%d,%d,%d,%d,%.3f,%.2f,%d,%d,%d,%d\n",
+		r, cfg.Mode, cfg.N, ok, errors, cfg.C, elapsed, okRps,
+		hist.ValueAtQuantile(50.0),
+		hist.ValueAtQuantile(95.0),
+		hist.ValueAtQuantile(99.0),
+		hist.Max(),
+	)
+
+	if okRps < *minRps {
+		*minRps = okRps
+	}
+	if okRps > *maxRps {
+		*maxRps = okRps
+	}
+	*sumRps += okRps
 }
 
 type PhaseConfig struct {
@@ -144,23 +154,39 @@ func initClients(mode, addr string, tlsEnabled bool, certDir string, c int, dead
 	return grpcClient, httpClient
 }
 
+type WorkerState struct {
+	ok            *atomic.Int64
+	errors        *atomic.Int64
+	printedErrors *atomic.Int32
+	wg            *sync.WaitGroup
+	hist          *hdrhistogram.Histogram
+}
+
 func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, cfg PhaseConfig, hist *hdrhistogram.Histogram) (int64, int64) {
 	var wg sync.WaitGroup
 	var ok, errors atomic.Int64
 	var printedErrors atomic.Int32
 
+	ws := &WorkerState{
+		ok:            &ok,
+		errors:        &errors,
+		printedErrors: &printedErrors,
+		wg:            &wg,
+		hist:          hist,
+	}
+
 	for worker := 0; worker < cfg.C; worker++ {
 		wg.Add(1)
-		go runWorker(worker, grpcClient, httpClient, cfg, hist, &wg, &ok, &errors, &printedErrors)
+		go runWorker(worker, grpcClient, httpClient, cfg, ws)
 	}
 
 	wg.Wait()
 	return ok.Load(), errors.Load()
 }
 
-func runWorker(workerID int, grpcClient pb.PingServiceClient, httpClient *http.Client, cfg PhaseConfig, hist *hdrhistogram.Histogram, wg *sync.WaitGroup, ok, errors *atomic.Int64, printedErrors *atomic.Int32) {
-	defer wg.Done()
-	
+func runWorker(workerID int, grpcClient pb.PingServiceClient, httpClient *http.Client, cfg PhaseConfig, ws *WorkerState) {
+	defer ws.wg.Done()
+
 	base := cfg.N / cfg.C
 	extra := cfg.N % cfg.C
 	myN := base
@@ -178,20 +204,20 @@ func runWorker(workerID int, grpcClient pb.PingServiceClient, httpClient *http.C
 		cancel()
 
 		if err != nil {
-			errors.Add(1)
-			if printedErrors.Add(1) <= 3 {
+			ws.errors.Add(1)
+			if ws.printedErrors.Add(1) <= 3 {
 				fmt.Printf("error example: %v\n", err)
 			}
 			continue
 		}
 
-		ok.Add(1)
-		if hist != nil {
+		ws.ok.Add(1)
+		if ws.hist != nil {
 			durUs := time.Since(startNs).Microseconds()
 			if durUs < 1 {
 				durUs = 1
 			}
-			hist.RecordValue(durUs)
+			ws.hist.RecordValue(durUs)
 
 			if cfg.PrintExample && workerID == 0 && j == 0 {
 				fmt.Printf("example response: %s\n", val)
@@ -208,7 +234,7 @@ func executeRequest(ctx context.Context, grpcClient pb.PingServiceClient, httpCl
 		}
 		return resp.GetMessage(), nil
 	}
-	
+
 	url := fmt.Sprintf("%s://%s/api/ping?message=hi%%20%d", cfg.Scheme, cfg.Target, i)
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {

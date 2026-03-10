@@ -31,7 +31,7 @@ func TestLoadConfig(t *testing.T) {
 func TestGetOrDefault(t *testing.T) {
 	os.Clearenv()
 	assert.Equal(t, "fallback", envutil.GetOrDefault("TEST_VAR", "fallback"))
-	
+
 	os.Setenv("TEST_VAR", "actual")
 	defer os.Clearenv()
 	assert.Equal(t, "actual", envutil.GetOrDefault("TEST_VAR", "fallback"))

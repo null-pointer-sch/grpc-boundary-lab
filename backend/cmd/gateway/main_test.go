@@ -12,7 +12,7 @@ func TestMainExecution(t *testing.T) {
 	os.Setenv("REST_PORT", "0")
 	os.Setenv("BACKEND_HOST", "127.0.0.1")
 	// Try a bad/empty backend port so client connection fails fast or tries to connect but is ignored
-	os.Setenv("BACKEND_PORT", "9999") 
+	os.Setenv("BACKEND_PORT", "9999")
 	os.Setenv("CERT_DIR", "/tmp/nonexistent")
 
 	go func() {

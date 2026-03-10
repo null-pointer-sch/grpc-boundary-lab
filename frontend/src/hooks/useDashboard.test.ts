@@ -43,6 +43,7 @@ describe('useDashboard hook', () => {
     });
 
     it('handles fetch errors on mount', async () => {
+        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
         vi.mocked(api.getMode).mockRejectedValueOnce(new Error('Network Error'));
 
         const { result } = renderHook(() => useDashboard());
@@ -53,6 +54,8 @@ describe('useDashboard hook', () => {
 
         expect(result.current.loading).toBe(false);
         expect(result.current.error).toBe('Could not connect to gateway');
+        
+        consoleSpy.mockRestore();
     });
 
     it('handles ping correctly', async () => {
