@@ -21,9 +21,9 @@ const COLORS = {
 } as const;
 
 const EMPTY_DATA = [
-    { name: 'P50', value: 0, color: COLORS.p50 },
-    { name: 'P95', value: 0, color: COLORS.p95 },
-    { name: 'P99', value: 0, color: COLORS.p99 },
+    { name: 'P50', value: 0, color: COLORS.p50, label: 'Median' },
+    { name: 'P95', value: 0, color: COLORS.p95, label: '95th Percentile' },
+    { name: 'P99', value: 0, color: COLORS.p99, label: '99th Percentile' },
 ];
 
 export const LatencyChart: React.FC<LatencyChartProps> = ({ stats }) => {
