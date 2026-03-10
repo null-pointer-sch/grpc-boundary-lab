@@ -11,29 +11,26 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
 
   return (
     <div 
-      className="flex min-h-screen font-sans relative bg-[#312D2A]"
+      className="flex min-h-screen font-sans relative"
       style={{
+        backgroundColor: '#312D2A',
         backgroundImage: "url('/redwood-brand-bg.png')",
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Subtler frosted glass overlay allows the organic textures to shine through clearly while providing contrast for text */}
-      <div className="absolute inset-0 bg-neutral-base/20 backdrop-blur-sm z-0 pointer-events-none" />
-
       <div className="relative z-10 flex w-full">
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
         
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 bg-[#F4EBE1]/90 backdrop-blur-sm">
           <TopBar />
           
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-auto p-2">
             {children}
           </main>
           
-          {/* Footer info (Redwood style) */}
-          <footer className="py-4 px-8 border-t border-neutral-300/30 bg-white/20 backdrop-blur-2xl text-[10px] text-text-sub flex justify-between">
+          <footer className="py-4 px-8 border-t border-neutral-300/30 text-[10px] text-text-sub flex justify-between">
             <span>&copy; 2026 Enterprise Performance Labs</span>
             <div className="flex gap-4">
               <a href="#" className="hover:underline">Legal</a>
