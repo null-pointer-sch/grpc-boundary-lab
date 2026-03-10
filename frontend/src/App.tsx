@@ -1,13 +1,12 @@
 import React from 'react';
 import { Dashboard } from './pages/Dashboard';
+import { AppShell } from './components/layout/AppShell';
 
 export const App: React.FC = () => {
   return (
-    <div className="min-h-screen font-sans text-redwood-text selection:bg-redwood-red/20">
-      <div className="relative z-10">
-        <Dashboard />
-      </div>
-    </div>
+    <AppShell>
+      <Dashboard />
+    </AppShell>
   );
 };
 

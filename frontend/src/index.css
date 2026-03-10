@@ -1,98 +1,102 @@
 @import "tailwindcss";
 
-/* || THEME TOKENS */
+/* || THEME TOKENS - Oracle Redwood Literal Spec */
 @theme {
-  --font-sans: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", sans-serif;
   
-  /* Brand Palette - Humble & Neutral */
-  --color-primary: #C74634;        
-  --color-primary-light: #E0614C;
-  --color-secondary: #234E46;      
-  --color-secondary-light: #306B60;
-  --color-accent-teal: #00758F;    
-  --color-accent-rose: #A32D65;    
-  --color-accent-plum: #7F2257;    
+  /* Primary Palette */
+  --color-primary-red: #C74634;        /* Oracle Red */
+  --color-primary-red-hover: #B53F2F;
   
-  /* Surface & Backgrounds */
-  --color-app-bg: #F9F8F7;         
-  --color-app-surface: #FFFFFF;
-  --color-app-border: #EBE9E7;
-  --color-app-text: #312D2A;
-  --color-app-text-muted: #645F5B;
+  /* Neutral Palette */
+  --color-neutral-base: #F9F8F7;       /* Off-white base */
+  --color-neutral-100: #F3F1F0;        /* Light gray */
+  --color-neutral-200: #EBE9E7;        /* Border / Accent bg */
+  --color-neutral-300: #D8D4D0;
+  --color-text-main: #312D2A;          /* Main body */
+  --color-text-sub: #645F5B;           /* Subheadings/Labels */
   
-  /* UI Accents */
-  --color-ui-accent-bg: #EBE9E7;
-  --color-ui-accent-hover: #D8D4D0;
+  /* Secondary / Data Viz */
+  --color-viz-teal: #00758F;
+  --color-viz-slate: #4A6273;
+  --color-viz-amber: #A66300;
+  
+  /* Semantic */
+  --color-success: #2E7D32;
+  --color-warning: #ED6C02;
+  --color-error: #D32F2F;
+  --color-info: #0288D1;
 
+  /* Spacing & Radii */
+  --spacing-unit: 8px;
+  --radius-card: 8px;
+  --radius-button: 4px;
+  --radius-badge: 100px;
+  
   /* Elevations */
-  --shadow-brand-sm: 0 2px 4px rgba(49, 45, 42, 0.05);
-  --shadow-brand-md: 0 4px 12px rgba(49, 45, 42, 0.08);
-  --shadow-brand-lg: 0 12px 24px rgba(49, 45, 42, 0.12);
+  --shadow-redwood: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-redwood-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 /* || GENERAL STYLES */
 @layer base {
   body {
-    @apply bg-[#F9F8F7] text-app-text antialiased min-h-screen selection:bg-primary/10;
+    @apply bg-neutral-base text-text-main antialiased min-h-screen;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    background-image: url('/redwood-bg-light.png');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-  }
-}
-
-/* || UTILITIES */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
   }
 }
 
 /* || COMPONENTS */
 @layer components {
-  /* Humble Display Cards */
-  .brand-card {
-    @apply bg-white/90 backdrop-blur-3xl border border-white/60 rounded-[32px] shadow-brand-md hover:shadow-brand-lg transition-all duration-700 overflow-hidden;
+  /* Structured Cards */
+  .rw-card {
+    @apply bg-white border border-neutral-200 rounded-[8px] shadow-redwood transition-all duration-200;
   }
   
-  /* Segmented Navigation */
-  .brand-segmented-control {
-    @apply flex p-1.5 bg-[#EBE9E7]/40 backdrop-blur-xl rounded-[20px] border border-[#EBE9E7]/60 shadow-inner;
-  }
-
-  .brand-segmented-item {
-    @apply px-6 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] rounded-[14px] transition-all duration-500 ease-out;
-  }
-
-  .brand-segmented-item-active {
-    @apply bg-white text-app-text shadow-xl shadow-black/5 transform scale-[1.02];
-  }
-
-  .brand-segmented-item-inactive {
-    @apply text-app-text-muted hover:text-app-text hover:bg-white/40;
+  /* Button Variants */
+  .rw-button-primary {
+    @apply bg-primary-red text-white text-sm font-bold h-10 px-6 rounded-[4px] hover:bg-primary-red-hover transition-colors flex items-center justify-center gap-2;
   }
   
-  /* Action Elements */
-  .brand-button-primary {
-    @apply bg-primary text-white font-black uppercase tracking-[0.3em] py-4.5 px-12 rounded-[24px] hover:bg-primary-light transition-all duration-500 shadow-2xl shadow-primary/20 active:scale-[0.98] hover:-translate-y-1.5;
+  .rw-button-secondary {
+    @apply bg-transparent border border-primary-red text-primary-red text-sm font-bold h-10 px-6 rounded-[4px] hover:bg-primary-red/5 transition-colors flex items-center justify-center gap-2;
   }
   
-  .brand-button-ghost {
-    @apply flex items-center gap-2.5 rounded-[18px] bg-white/60 backdrop-blur-md px-6 py-3 text-[10px] font-black uppercase tracking-[0.4em] text-app-text border border-white shadow-sm transition-all hover:bg-white active:scale-95;
+  .rw-button-tertiary {
+    @apply bg-transparent text-text-main text-sm font-medium h-10 px-4 rounded-[4px] hover:bg-neutral-100 transition-colors flex items-center justify-center gap-2;
   }
 
-  /* Status Indicators */
-  .brand-glass-badge {
-    @apply backdrop-blur-2xl border border-white shadow-xl bg-white/40;
+  /* Semantic Pill Badges */
+  .rw-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-[12px] font-medium border uppercase tracking-wider;
+  }
+  .rw-badge-success { @apply bg-success/10 text-success border-success/20; }
+  .rw-badge-warning { @apply bg-warning/10 text-warning border-warning/20; }
+  .rw-badge-error   { @apply bg-error/10 text-error border-error/20; }
+  .rw-badge-info    { @apply bg-info/10 text-info border-info/20; }
+
+  /* Navigation / Sidebar Elements */
+  .rw-nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-text-sub hover:bg-neutral-100 hover:text-text-main transition-all cursor-pointer;
+  }
+  .rw-nav-item-active {
+    @apply bg-neutral-200 text-text-main font-bold border-r-4 border-r-primary-red;
   }
 
-  /* Decorative Accents */
-  .brand-grad-secondary {
-    background: linear-gradient(135deg, #234E46 0%, #306B60 100%);
+  /* Tables */
+  .rw-table {
+    @apply w-full text-left text-sm border-separate border-spacing-0;
   }
-  .brand-grad-primary {
-    background: linear-gradient(135deg, #C74634 0%, #E0614C 100%);
+  .rw-table-header {
+    @apply bg-white sticky top-0 z-10 font-bold text-text-sub border-b border-neutral-200 px-4 py-3;
+  }
+  .rw-table-row {
+    @apply bg-white hover:bg-neutral-100/50 transition-colors;
+  }
+  .rw-table-row:nth-child(even) {
+    @apply bg-neutral-100/30;
+  }
+  .rw-table-cell {
+    @apply border-b border-neutral-100 px-4 py-3;
   }
 }

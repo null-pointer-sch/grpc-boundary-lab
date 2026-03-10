@@ -1,10 +1,20 @@
 import React from 'react';
-import { RefreshCw, Activity, Zap, BarChart2, Shield, ShieldOff } from 'lucide-react';
+import { 
+  RefreshCw, 
+  Activity, 
+  Zap, 
+  BarChart2, 
+  Shield, 
+  ShieldOff, 
+  Settings, 
+  ShieldCheck 
+} from 'lucide-react';
 
 import { useDashboard } from '../hooks/useDashboard';
 import { ModeBadge } from '../components/ModeBadge';
 import { StatsCard } from '../components/StatsCard';
 import { LatencyChart } from '../components/LatencyChart';
+import { cn } from '../utils/cn';
 
 export const Dashboard: React.FC = () => {
     const {
@@ -15,197 +25,177 @@ export const Dashboard: React.FC = () => {
     } = useDashboard();
 
     return (
-        <div className="mx-auto max-w-6xl px-4 pt-2 sm:pt-4 pb-20 sm:px-6 lg:px-8">
-            {/* Artistic Header Section */}
-            <div className="mb-16 flex flex-col items-start justify-between gap-10 md:flex-row md:items-center p-8 rounded-[40px] bg-white/20 backdrop-blur-2xl border border-white/30 shadow-2xl">
-                <div className="flex items-center gap-6">
-                    <div className="rounded-3xl bg-primary p-5 shadow-2xl shadow-primary/40 transform -rotate-6 hover:rotate-0 transition-all duration-700 hover:scale-110">
-                        <Activity className="h-12 w-12 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-5xl font-black tracking-tighter text-app-text mb-2 uppercase drop-shadow-sm">
-                            Performance <span className="text-primary">Dashboard</span>
-                        </h1>
-                        <p className="text-xs font-black text-app-text-muted/80 uppercase tracking-[0.3em] ml-1">
-                            Network Boundary Observatory
-                        </p>
-                    </div>
+        <div className="p-8 max-w-[1600px] mx-auto">
+            {/* Context Header */}
+            <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h1 className="text-[32px] font-bold text-text-main leading-tight tracking-tight">Boundary Lab Performance</h1>
+                    <p className="text-[16px] text-text-sub mt-1">Real-time observability across secure network boundaries</p>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => refresh()}
+                        className="rw-button-tertiary"
+                        disabled={loading}
+                    >
+                        <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                        Refresh Data
+                    </button>
+                    <button className="rw-button-primary">
+                        <Zap size={16} />
+                        Benchmark All
+                    </button>
+                    <button className="p-2 hover:bg-neutral-100 rounded-md transition-colors">
+                        <Settings size={20} className="text-text-sub" />
+                    </button>
+                </div>
+            </div>
+
+            {/* Config & Status Bar */}
+            <div className="rw-card p-4 mb-8 flex flex-wrap items-center justify-between gap-6 bg-neutral-100/50">
+                <div className="flex items-center gap-8">
+                   <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-text-sub uppercase tracking-wider">Protocol</span>
+                      <div className="flex gap-1 p-1 bg-white border border-neutral-200 rounded-md">
+                        <button 
+                            onClick={() => setProtocol('grpc')}
+                            className={cn("px-4 py-1.5 text-xs font-bold rounded transition-all", protocol === 'grpc' ? "bg-primary-red text-white" : "hover:bg-neutral-100")}
+                        >gRPC</button>
+                        <button 
+                            onClick={() => setProtocol('rest')}
+                            className={cn("px-4 py-1.5 text-xs font-bold rounded transition-all", protocol === 'rest' ? "bg-primary-red text-white" : "hover:bg-neutral-100")}
+                        >REST</button>
+                      </div>
+                   </div>
+
+                   <div className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-text-sub uppercase tracking-wider">Security Layer</span>
+                      <div className="flex gap-1 p-1 bg-white border border-neutral-200 rounded-md">
+                        <button 
+                            onClick={() => setTlsEnabled(false)}
+                            className={cn("flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded transition-all", !tlsEnabled ? "bg-primary-red text-white" : "hover:bg-neutral-100")}
+                        ><ShieldOff size={14} /> Plain</button>
+                        <button 
+                            onClick={() => setTlsEnabled(true)}
+                            disabled={mode !== null && !mode.tlsAvailable}
+                            className={cn("flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded transition-all", tlsEnabled ? "bg-primary-red text-white" : "hover:bg-neutral-100")}
+                        ><Shield size={14} /> mTLS</button>
+                      </div>
+                   </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-5 min-w-[320px]">
-                    <div className="flex items-center gap-4">
-                        {/* Protocol Control */}
-                        <div className="brand-segmented-control">
-                            <button
-                                type="button"
-                                onClick={(e) => { e.preventDefault(); setProtocol('grpc'); }}
-                                className={`brand-segmented-item ${protocol === 'grpc' ? 'brand-segmented-item-active' : 'brand-segmented-item-inactive'}`}
-                            >
-                                gRPC
-                            </button>
-                            <button
-                                type="button"
-                                onClick={(e) => { e.preventDefault(); setProtocol('rest'); }}
-                                className={`brand-segmented-item ${protocol === 'rest' ? 'brand-segmented-item-active' : 'brand-segmented-item-inactive'}`}
-                            >
-                                REST
-                            </button>
-                        </div>
-
-                        {/* Security Control */}
-                        <div className="brand-segmented-control">
-                            <button
-                                type="button"
-                                onClick={(e) => { e.preventDefault(); setTlsEnabled(false); }}
-                                className={`brand-segmented-item flex items-center gap-2 ${!tlsEnabled ? 'brand-segmented-item-active' : 'brand-segmented-item-inactive'}`}
-                            >
-                                <ShieldOff size={12} />
-                                PLAIN
-                            </button>
-                            <button
-                                type="button"
-                                onClick={(e) => { e.preventDefault(); setTlsEnabled(true); }}
-                                disabled={mode !== null && !mode.tlsAvailable}
-                                className={`brand-segmented-item flex items-center gap-2 ${tlsEnabled ? 'brand-segmented-item-active' : 'brand-segmented-item-inactive'} disabled:opacity-30`}
-                            >
-                                <Shield size={12} />
-                                mTLS
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <ModeBadge mode={mode} protocol={protocol} tlsEnabled={tlsEnabled} className="brand-glass-badge" />
-                        <button
-                            type="button"
-                            onClick={(e) => { e.preventDefault(); refresh(); }}
-                            className="brand-button-ghost"
-                            disabled={loading}
-                        >
-                            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-                            REFRESH
-                        </button>
-                    </div>
+                <div className="flex items-center gap-4">
+                   <div className="flex flex-col items-end gap-1">
+                      <span className="text-[10px] font-bold text-text-sub uppercase tracking-wider">Current Status</span>
+                      <ModeBadge mode={mode} protocol={protocol} tlsEnabled={tlsEnabled} />
+                   </div>
                 </div>
             </div>
 
             {/* Error Overlay */}
             {error && (
-                <div className="mb-12 rounded-3xl bg-accent-rose/20 backdrop-blur-xl p-6 border border-accent-rose/30 text-accent-rose font-black uppercase tracking-widest flex items-center gap-5 shadow-2xl animate-pulse">
-                    <Activity size={28} />
-                    <span className="text-lg">{error}</span>
+                <div className="mb-8 rw-badge rw-badge-error w-full py-4 px-6 rounded-lg normal-case tracking-normal text-sm flex items-center gap-3">
+                    <Activity size={20} />
+                    <span>{error}</span>
                 </div>
             )}
 
-            {/* Glass Stats Grid */}
-            <div className="mb-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Stats Grid */}
+            <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <StatsCard
-                    title="THROUGHPUT"
+                    title="Throughput"
                     value={stats ? Math.round(stats.rps).toLocaleString() : '--'}
                     subtitle="RPS"
-                    icon={<Zap size={24} className="text-primary" />}
-                    className="brand-card border-b-8 border-b-primary/30"
+                    icon={<Zap className="text-primary-red" />}
                 />
                 <StatsCard
-                    title="P50 LATENCY"
+                    title="P50 Latency"
                     value={stats ? stats.p50.toFixed(2) : '--'}
                     subtitle="MS"
-                    icon={<BarChart2 size={24} className="text-accent-teal" />}
-                    className="brand-card border-b-8 border-b-accent-teal/30"
+                    icon={<BarChart2 className="text-viz-teal" />}
                 />
                 <StatsCard
-                    title="P95 LATENCY"
+                    title="P95 Latency"
                     value={stats ? stats.p95.toFixed(2) : '--'}
                     subtitle="MS"
-                    icon={<BarChart2 size={24} className="text-accent-plum" />}
-                    className="brand-card border-b-8 border-b-accent-plum/30"
+                    icon={<BarChart2 className="text-viz-slate" />}
                 />
                 <StatsCard
-                    title="P99 LATENCY"
+                    title="P99 Latency"
                     value={stats ? stats.p99.toFixed(2) : '--'}
                     subtitle="MS"
-                    icon={<BarChart2 size={24} className="text-accent-rose" />}
-                    className="brand-card border-b-8 border-b-accent-rose/30"
+                    icon={<BarChart2 className="text-primary-red" />}
                 />
             </div>
 
-            {/* Secondary Content Layer */}
-            <div className="grid grid-cols-1 gap-10 lg:grid-cols-3">
-                <div className="lg:col-span-2 brand-card p-10">
-                    <div className="mb-10 flex items-center justify-between">
-                        <div className="flex items-center gap-6">
-                            <h2 className="text-2xl font-black text-app-text uppercase tracking-tighter">Performance Realm</h2>
-                            <div className="flex items-center gap-2 px-6 py-2 bg-secondary/10 rounded-full border border-secondary/20 backdrop-blur-md">
-                                <Activity size={14} className="text-secondary" />
-                                <span className="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">
-                                    Live Stream
-                                </span>
-                            </div>
+            {/* Main Area: Chart + Connection Test */}
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                <div className="lg:col-span-2 rw-card">
+                    <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                           <h2 className="text-[16px] font-bold text-text-main">Latency Perspective</h2>
+                           <span className="rw-badge rw-badge-success text-[10px]">Real-time</span>
                         </div>
-                        <div className="text-[10px] font-black text-app-text-muted/60 uppercase tracking-[0.4em]">
-                            MODE: {protocol}
-                        </div>
+                        <span className="text-[12px] text-text-sub">Protocol: <span className="uppercase font-bold text-text-main">{protocol}</span></span>
                     </div>
-                    <div className={`transition-all duration-1000 ${fetchingStats ? 'opacity-20 blur-md scale-[0.95]' : 'opacity-100'}`}>
+                    <div className={cn("p-6 transition-all duration-500", fetchingStats ? 'opacity-40 grayscale-[50%]' : 'opacity-100')}>
                         <LatencyChart stats={stats} />
                     </div>
                 </div>
 
-                {/* Connection Portal */}
-                <div className="flex flex-col gap-10 brand-card p-10 border-t-8 border-t-primary">
-                    <div>
-                        <h2 className="mb-6 text-2xl font-black text-app-text uppercase tracking-tighter border-b border-app-text/10 pb-4">Connection Portal</h2>
-                        <p className="text-xs font-black text-app-text-muted/60 leading-relaxed uppercase tracking-widest">
-                            Initiate a high-speed probe across the repository boundaries. Visualizing real-time round-trip latency.
+                {/* Connection Utility */}
+                <div className="flex flex-col gap-6">
+                    <div className="rw-card p-6 flex-1">
+                        <h2 className="text-[16px] font-bold mb-4 border-b border-neutral-100 pb-3 text-text-main">Test Connection</h2>
+                        <p className="text-[14px] text-text-sub mb-6 leading-relaxed">
+                            Simulate high-frequency binary probes across the repository boundary to verify tunnel stability.
                         </p>
+                        
+                        <div className="flex flex-col gap-4">
+                            <button
+                                onClick={() => handlePing()}
+                                disabled={pinging || !mode}
+                                className="rw-button-primary w-full h-12 text-md"
+                            >
+                                {pinging ? (
+                                    <><RefreshCw className="animate-spin" size={20} /> Probe Active...</>
+                                ) : (
+                                    <><Activity size={20} /> Initialize Probe</>
+                                )}
+                            </button>
+                            
+                            {pingResult && (
+                                <div className="mt-4 p-6 bg-neutral-100 rounded-lg border border-neutral-200">
+                                   <div className="flex items-baseline justify-center gap-2">
+                                      <span className="text-[42px] font-bold text-viz-teal tracking-tighter tabular-nums">{pingResult.latencyMs}</span>
+                                      <span className="text-[14px] font-bold text-text-sub">ms</span>
+                                   </div>
+                                   <div className="flex items-center justify-center gap-2 mt-1">
+                                      <div className="w-1.5 h-1.5 rounded-full bg-viz-teal animate-pulse" />
+                                      <span className="text-[12px] font-medium text-text-sub uppercase tracking-widest">Calculated Round Trip</span>
+                                   </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={(e) => { e.preventDefault(); handlePing(); }}
-                        disabled={pinging || !mode}
-                        className="brand-button-primary group"
-                    >
-                        <div className="flex items-center justify-center gap-4">
-                            {pinging ? (
-                                <RefreshCw className="animate-spin" size={24} />
-                            ) : (
-                                <Zap size={24} className="fill-white group-hover:scale-125 transition-transform" />
-                            )}
-                            <span className="text-lg">{pinging ? 'PROBING...' : 'INITIALIZE PING'}</span>
-                        </div>
-                    </button>
-
-                    {pingResult && (
-                        <div className={`rounded-[32px] border-2 border-accent-teal/30 bg-accent-teal/10 backdrop-blur-2xl p-10 text-center transition-all duration-700 ${pinging ? 'opacity-20 scale-90 translate-y-4' : 'opacity-100 shadow-3xl shadow-accent-teal/10'}`}>
-                            <span className="block text-6xl font-black tracking-tighter text-accent-teal tabular-nums mb-3 drop-shadow-md">
-                                {pingResult.latencyMs} <span className="text-xl opacity-40">MS</span>
-                            </span>
-                            <div className="flex items-center justify-center gap-2">
-                                <div className="h-1 w-1 rounded-full bg-accent-teal animate-ping" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.5em] text-accent-teal/60">
-                                    ROUND TRIP
-                                </span>
+                    <div className={cn(
+                        "rw-card p-6 border-t-4 transition-all duration-300", 
+                        tlsEnabled ? "border-t-success bg-white" : "border-t-viz-amber bg-neutral-100/30"
+                    )}>
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className={cn("p-1.5 rounded-md", tlsEnabled ? "bg-success/10 text-success" : "bg-viz-amber/10 text-viz-amber")}>
+                                {tlsEnabled ? <ShieldCheck size={18} /> : <ShieldOff size={18} />}
                             </div>
-                        </div>
-                    )}
-
-                    <div className={`mt-auto rounded-3xl p-6 border-2 transition-all duration-500 ${tlsEnabled
-                        ? 'border-secondary/30 bg-secondary/10 shadow-2xl'
-                        : 'border-white/20 bg-white/10 shadow-lg'
-                        }`}>
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className={`p-2 rounded-xl backdrop-blur-md ${tlsEnabled ? 'bg-secondary text-white' : 'bg-white/20 text-app-text-muted'}`}>
-                                {tlsEnabled ? <Shield size={20} /> : <ShieldOff size={20} />}
-                            </div>
-                            <span className={`text-[11px] font-black uppercase tracking-[0.3em] ${tlsEnabled ? 'text-secondary' : 'text-app-text-muted'}`}>
-                                {tlsEnabled ? 'IDENTITY SECURED' : 'OPEN TUNNEL'}
+                            <span className="text-[14px] font-bold uppercase tracking-wide text-text-main">
+                                {tlsEnabled ? 'Secure Identity' : 'Public Access'}
                             </span>
                         </div>
-                        <p className="text-[10px] font-black text-app-text-muted/60 leading-loose uppercase tracking-[0.15em]">
-                            {tlsEnabled
-                                ? 'Transmission encrypted via mutual TLS certificates. Cryptographic proof of identity established.'
-                                : 'Payload transmitted in plaintext. Security layer bypassed for maximum performance analysis.'}
+                        <p className="text-[12px] text-text-sub leading-loose">
+                            {tlsEnabled 
+                             ? 'Encryption verified with OCI standard mutual TLS handshake. Security context is strictly enforced.' 
+                             : 'Plaintext communication optimized for laboratory observation. Not recommended for production environments.'}
                         </p>
                     </div>
                 </div>

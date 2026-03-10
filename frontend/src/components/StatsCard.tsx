@@ -6,10 +6,6 @@ interface StatsCardProps {
     value: string | number;
     subtitle?: string;
     icon?: React.ReactNode;
-    trend?: {
-        value: number;
-        isPositive: boolean;
-    };
     className?: string;
 }
 
@@ -18,51 +14,33 @@ export const StatsCard: React.FC<StatsCardProps> = ({
     value,
     subtitle,
     icon,
-    trend,
     className
 }) => {
     return (
         <div className={cn(
-            "group relative overflow-hidden p-8",
+            "rw-card p-6 group",
             className
         )}>
-            {/* Dynamic Glass Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-            
-            <div className="relative flex flex-col items-start justify-between h-full gap-8">
-                <div className="flex items-center justify-between w-full">
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-app-text-muted/70">{title}</p>
-                    {icon && (
-                        <div className="rounded-[20px] bg-white/40 p-3 text-app-text-muted/80 shadow-lg border border-white/40 group-hover:scale-110 group-hover:bg-white/60 transition-all duration-500">
-                            {React.cloneElement(icon as React.ReactElement<any>, { size: 20 })}
-                        </div>
-                    )}
-                </div>
-
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-baseline gap-3">
-                        <h3 className="text-5xl font-black tracking-tighter text-app-text tabular-nums drop-shadow-sm">{value}</h3>
-                        {subtitle && (
-                            <span className="text-[10px] font-black text-app-text-muted/30 uppercase tracking-[0.3em] font-sans">{subtitle}</span>
-                        )}
-                    </div>
-                </div>
-
-                {trend && (
-                    <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em]">
-                        <span className={cn(
-                            "px-3 py-1.5 rounded-full shadow-lg backdrop-blur-md border border-white/40",
-                            trend.isPositive ? "bg-secondary/20 text-secondary" : "bg-accent-rose/20 text-accent-rose"
-                        )}>
-                            {trend.value > 0 ? '↑' : '↓'} {Math.abs(trend.value)}%
-                        </span>
-                        <span className="text-app-text-muted/40">DELTA</span>
+            <div className="flex items-center justify-between mb-4">
+                <span className="text-[12px] font-bold text-text-sub uppercase tracking-wider">{title}</span>
+                {icon && (
+                    <div className="p-2 bg-neutral-100 rounded-md text-text-sub group-hover:bg-neutral-200 transition-colors">
+                        {React.cloneElement(icon as React.ReactElement<any>, { size: 18 })}
                     </div>
                 )}
             </div>
 
-            {/* Micro-texture Overlay */}
-            <div className="absolute inset-0 pointer-events-none opacity-20 mix-blend-overlay bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')]" />
+            <div className="flex items-baseline gap-2">
+                <h3 className="text-[28px] font-bold text-text-main tabular-nums tracking-tight">{value}</h3>
+                {subtitle && (
+                    <span className="text-[12px] font-medium text-text-sub uppercase">{subtitle}</span>
+                )}
+            </div>
+            
+            {/* Subtle bottom accent for high-density feel */}
+            <div className="mt-4 h-1 w-full bg-neutral-100 rounded-full overflow-hidden">
+                <div className="h-full bg-primary-red/10 w-1/3" />
+            </div>
         </div>
     );
 };
