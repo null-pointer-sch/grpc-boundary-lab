@@ -80,10 +80,10 @@ describe('Dashboard Component', () => {
         expect(setProtocol).toHaveBeenCalledWith('grpc');
 
         // Security buttons
-        fireEvent.click(screen.getByText(/Plain/i));
+        fireEvent.click(screen.getAllByText(/Plain/i)[0]);
         expect(setTlsEnabled).toHaveBeenCalledWith(false);
 
-        fireEvent.click(screen.getByText(/mTLS/i));
+        fireEvent.click(screen.getAllByText(/mTLS/i)[0]);
         expect(setTlsEnabled).toHaveBeenCalledWith(true);
 
         // Actions

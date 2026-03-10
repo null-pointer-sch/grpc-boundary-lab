@@ -33,3 +33,25 @@ func TestMainExecution(t *testing.T) {
 	// Give it time to shut down
 	time.Sleep(100 * time.Millisecond)
 }
+
+func TestMainExecution_TLS(t *testing.T) {
+	os.Setenv("BACKEND_PORT", "0")
+	os.Setenv("BACKEND_PORT_TLS", "0")
+	os.Setenv("BACKEND_REST_PORT", "0")
+	os.Setenv("BACKEND_REST_PORT_TLS", "0")
+	os.Setenv("CERT_DIR", "/tmp/certs")
+
+	go func() {
+		main()
+	}()
+
+	time.Sleep(200 * time.Millisecond)
+
+	pid := os.Getpid()
+	process, err := os.FindProcess(pid)
+	if err == nil {
+		process.Signal(syscall.SIGINT)
+	}
+
+	time.Sleep(100 * time.Millisecond)
+}

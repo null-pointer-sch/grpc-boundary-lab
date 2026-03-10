@@ -134,7 +134,7 @@ export const Dashboard: React.FC = () => {
             <DashboardStatsGrid stats={stats} />
 
             {/* Main Area: Chart + Connection Test */}
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 items-start">
                 <div className="lg:col-span-2 rw-card">
                     <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -162,7 +162,17 @@ export const Dashboard: React.FC = () => {
                                 disabled={pinging || !mode}
                                 className="rw-button-primary w-full h-12 text-md"
                             >
-                                <Activity size={20} className="mr-2 inline-block" /> Initialize Probe
+                                {pinging ? (
+                                    <>
+                                        <RefreshCw size={20} className="mr-2 inline-block animate-spin" />
+                                        Pinging...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Activity size={20} className="mr-2 inline-block" />
+                                        Initialize Probe
+                                    </>
+                                )}
                             </button>
                             
                             {pingResult && (

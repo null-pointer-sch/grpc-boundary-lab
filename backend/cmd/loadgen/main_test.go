@@ -34,15 +34,42 @@ func TestMainExecution_REST(t *testing.T) {
 	main()
 }
 
+func TestMainExecution_Warmup(t *testing.T) {
+	os.Setenv("REQUESTS", "1")
+	os.Setenv("CONCURRENCY", "1")
+	os.Setenv("WARMUP", "1")
+	os.Setenv("RUNS", "1")
+	os.Setenv("MODE", "rest")
+	os.Setenv("TARGET_PORT", "0")
+
+	main()
+}
+
+func TestMainExecution_MultipleRuns(t *testing.T) {
+	os.Setenv("REQUESTS", "1")
+	os.Setenv("CONCURRENCY", "1")
+	os.Setenv("WARMUP", "0")
+	os.Setenv("RUNS", "2")
+	os.Setenv("MODE", "rest")
+	os.Setenv("TARGET_PORT", "0")
+
+	main()
+}
+
 func TestInitClients(t *testing.T) {
 	_, httpC := initClients("rest", "127.0.0.1:8080", false, "", 2, 1000)
 	if httpC == nil {
 		t.Fatal("expected http client")
 	}
 
-	// Since we mock TLS by creating a dummy path that will fail if tried,
-	// we will skip the exact grpc tls coverage unless necessary because dial options
-	// block the client creation if certificates aren't present.
+	grpcC, _ := initClients("grpc", "127.0.0.1:50051", false, "", 2, 1000)
+	if grpcC == nil {
+		t.Fatal("expected grpc client")
+	}
+
+	// Test TLS paths
+	initClients("rest", "127.0.0.1:8080", true, "/tmp/certs", 2, 1000)
+	initClients("grpc", "127.0.0.1:50051", true, "/tmp/certs", 2, 1000)
 }
 
 func TestExecuteRequestREST(t *testing.T) {
