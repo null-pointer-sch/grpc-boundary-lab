@@ -87,3 +87,50 @@ func TestRESTServer_Bench(t *testing.T) {
 	assert.Equal(t, "grpc", payload.Protocol)
 	assert.False(t, payload.TLS)
 }
+
+func TestRESTServer_Errors(t *testing.T) {
+	server := gateway.NewRESTServer("", nil, nil, nil, nil)
+
+	// Test Method Not Allowed
+	endpoints := []string{"/api/mode", "/api/ping", "/api/bench/latest"}
+	for _, ep := range endpoints {
+		req := httptest.NewRequest(http.MethodPost, ep, nil)
+		w := httptest.NewRecorder()
+		server.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusMethodNotAllowed, w.Result().StatusCode)
+	}
+}
+
+func TestRESTServer_PickClient(t *testing.T) {
+	grpcClient := &mockBackendClient{Response: "grpc"}
+	restClient := &mockBackendClient{Response: "rest"}
+	grpcTLS := &mockBackendClient{Response: "grpc-tls"}
+	restTLS := &mockBackendClient{Response: "rest-tls"}
+
+	server := gateway.NewRESTServer("", grpcClient, restClient, grpcTLS, restTLS)
+
+	tests := []struct {
+		url      string
+		expected string
+		tls      bool
+	}{
+		{"/api/mode?target=grpc", "grpc", false},
+		{"/api/mode?target=rest", "rest", false},
+		{"/api/mode?target=grpc&tls=true", "grpc", true},
+		{"/api/mode?target=rest&tls=true", "rest", true},
+	}
+
+	for _, tc := range tests {
+		req := httptest.NewRequest(http.MethodGet, tc.url, nil)
+		w := httptest.NewRecorder()
+		server.ServeHTTP(w, req)
+		
+		res := w.Result()
+		assert.Equal(t, http.StatusOK, res.StatusCode)
+
+		var payload map[string]any
+		require.NoError(t, json.NewDecoder(res.Body).Decode(&payload))
+		assert.Equal(t, tc.expected, payload["protocol"])
+		assert.Equal(t, tc.tls, payload["tls"])
+	}
+}
