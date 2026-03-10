@@ -149,4 +149,3 @@ func (s *RESTServer) handleBench(w http.ResponseWriter, r *http.Request) {
 
 	httputil.WriteJSON(w, data)
 }
-
