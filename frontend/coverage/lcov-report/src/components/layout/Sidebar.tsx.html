@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/components/LatencyChart.tsx</title>
+    <title>Code coverage report for src/components/layout/Sidebar.tsx</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../prettify.css" />
-    <link rel="stylesheet" href="../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../sort-arrow-sprite.png);
+            background-image: url(../../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,34 +19,34 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/components</a> LatencyChart.tsx</h1>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/components/layout</a> Sidebar.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">77.77% </span>
+                <span class="strong">71.42% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>7/9</span>
+                <span class='fraction'>5/7</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">75% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>12/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">50% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>1/2</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>2/3</span>
+                <span class='fraction'>2/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">87.5% </span>
+                <span class="strong">71.42% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>7/8</span>
+                <span class='fraction'>5/7</span>
             </div>
         
             
@@ -160,23 +160,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -187,6 +175,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -198,6 +187,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -226,88 +227,87 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useMemo } from 'react';
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    ResponsiveContainer,
-} from 'recharts';
-import type { BenchmarkStats } from '../core/types/api';
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React, { useState } from 'react';
+import { 
+  LayoutDashboard, 
+  Activity, 
+  Settings, 
+  ChevronLeft, 
+  ChevronRight, 
+  Database,
+  ShieldCheck,
+  Zap
+} from 'lucide-react';
+import { cn } from '../../utils/cn';
 &nbsp;
-interface LatencyChartProps {
-    stats: BenchmarkStats | null;
+interface SidebarProps {
+  collapsed: boolean;
+  setCollapsed: (val: boolean) =&gt; void;
 }
 &nbsp;
-const COLORS = {
-    p50: '#00758F', // Viz Teal
-    p95: '#4A6273', // Viz Slate
-    p99: '#C74634', // Oracle Red
-} as const;
+export const Sidebar: React.FC&lt;SidebarProps&gt; = ({ collapsed, setCollapsed }) =&gt; {
+  const [activeItem, setActiveItem] = useState('dashboard');
 &nbsp;
-const EMPTY_DATA = [
-    { name: '', P50: 0, P95: 0, P99: 0 },
-];
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'latency', label: 'Latency Map', icon: Activity },
+    { id: 'security', label: 'Security Portal', icon: ShieldCheck },
+    { id: 'data', label: 'Data Streams', icon: Database },
+    { id: 'perf', label: 'Benchmark Lab', icon: Zap },
+    { id: 'settings', label: 'System Config', icon: Settings },
+  ];
 &nbsp;
-export const LatencyChart: React.FC&lt;LatencyChartProps&gt; = ({ stats }) =&gt; {
-    const data = useMemo(() =&gt; {
-        <span class="missing-if-branch" title="if path not taken" >I</span>if (!stats) <span class="cstat-no" title="statement not covered" >return EMPTY_DATA;</span>
-        return [
-            { name: '', P50: stats.p50, P95: stats.p95, P99: stats.p99 }
-        ];
-    }, [stats]);
+  return (
+    &lt;aside 
+      className={cn(
+        "h-screen sticky top-0 bg-neutral-base border-r border-neutral-200 transition-all duration-300 z-50 flex flex-col",
+        collapsed ? <span class="branch-0 cbranch-no" title="branch not covered" >"w-16" : "</span>w-64"
+      )}
+    &gt;
+      {/* Sidebar Header */}
+      &lt;div className="h-16 flex items-center px-4 border-b border-neutral-200"&gt;
+        {!collapsed &amp;&amp; (
+          &lt;span className="text-primary-red font-black tracking-tighter text-xl ml-2"&gt;RW-LAB&lt;/span&gt;
+        )}
+        &lt;button 
+          onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etCollapsed(!collapsed)}</span>
+          className="ml-auto p-2 hover:bg-neutral-100 rounded-md transition-colors"
+        &gt;
+          {collapsed ? <span class="branch-0 cbranch-no" title="branch not covered" >&lt;ChevronRight size={20} /&gt; : &lt;</span>ChevronLeft size={20} /&gt;}
+        &lt;/button&gt;
+      &lt;/div&gt;
 &nbsp;
-    return (
-        &lt;div className="h-80 w-full"&gt;
-            &lt;ResponsiveContainer width="100%" height="100%"&gt;
-                &lt;BarChart
-                    data={data}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
-                    barSize={60}
-                &gt;
-                    &lt;CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EBE9E7" /&gt;
-                    
-                    &lt;XAxis
-                        dataKey="name"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: '#645F5B', fontSize: 12, fontWeight: 600 }}
-                        dy={10}
-                    /&gt;
-                    &lt;YAxis
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fill: '#645F5B', fontSize: 11 }}
-                        tickFormatter={<span class="fstat-no" title="function not covered" >(v</span>al) =&gt; <span class="cstat-no" title="statement not covered" >`${val}ms`}</span>
-                        width={45}
-                    /&gt;
-                    
-                    &lt;Bar dataKey="P50" fill={COLORS.p50} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={60} /&gt;
-                    &lt;Bar dataKey="P95" fill={COLORS.p95} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={60} /&gt;
-                    &lt;Bar dataKey="P99" fill={COLORS.p99} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={60} /&gt;
-                &lt;/BarChart&gt;
-            &lt;/ResponsiveContainer&gt;
-            
-            {/* Custom Legend */}
-            &lt;div className="flex justify-center gap-8 mt-6"&gt;
-                &lt;div className="flex items-center gap-2"&gt;
-                    &lt;div className="w-3 h-3 rounded-sm" style={{ backgroundColor: COLORS.p50 }} /&gt;
-                    &lt;span className="text-[11px] font-bold text-text-sub uppercase tracking-wider"&gt;Median&lt;/span&gt;
-                &lt;/div&gt;
-                &lt;div className="flex items-center gap-2"&gt;
-                    &lt;div className="w-3 h-3 rounded-sm" style={{ backgroundColor: COLORS.p95 }} /&gt;
-                    &lt;span className="text-[11px] font-bold text-text-sub uppercase tracking-wider"&gt;95th Percentile&lt;/span&gt;
-                &lt;/div&gt;
-                &lt;div className="flex items-center gap-2"&gt;
-                    &lt;div className="w-3 h-3 rounded-sm" style={{ backgroundColor: COLORS.p99 }} /&gt;
-                    &lt;span className="text-[11px] font-bold text-text-sub uppercase tracking-wider"&gt;99th Percentile&lt;/span&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-    );
+      {/* Nav Items */}
+      &lt;nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden"&gt;
+        {navItems.map((item) =&gt; (
+          &lt;button 
+            key={item.id}
+            onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etActiveItem(item.id)}</span>
+            className={cn(
+              "rw-nav-item mx-2 mb-1 w-[calc(100%-16px)] text-left flex items-center",
+              activeItem === item.id &amp;&amp; "rw-nav-item-active"
+            )}
+          &gt;
+            &lt;item.icon size={20} className={cn(collapsed ? <span class="branch-0 cbranch-no" title="branch not covered" >"mx-auto" : "</span>min-w-[20px] mr-2")} /&gt;
+            {!collapsed &amp;&amp; &lt;span className="truncate"&gt;{item.label}&lt;/span&gt;}
+          &lt;/button&gt;
+        ))}
+      &lt;/nav&gt;
+&nbsp;
+      {/* Footer / Identity */}
+      &lt;div className="p-4 border-t border-neutral-200"&gt;
+         &lt;div className={cn("flex items-center gap-3", collapsed ? <span class="branch-0 cbranch-no" title="branch not covered" >"justify-center" : "</span>")}&gt;
+            &lt;div className="w-8 h-8 rounded-full bg-neutral-200 flex items-center justify-center text-[10px] font-bold"&gt;AS&lt;/div&gt;
+            {!collapsed &amp;&amp; (
+              &lt;div className="flex flex-col"&gt;
+                &lt;span className="text-[12px] font-bold truncate"&gt;Andy S.&lt;/span&gt;
+                &lt;span className="text-[10px] text-text-sub truncate"&gt;Performance Lead&lt;/span&gt;
+              &lt;/div&gt;
+            )}
+         &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/aside&gt;
+  );
 };
 &nbsp;</pre></td></tr></table></pre>
 
@@ -316,16 +316,16 @@ export const LatencyChart: React.FC&lt;LatencyChartProps&gt; = ({ stats }) =&gt;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-10T21:19:20.453Z
+                at 2026-03-10T21:19:20.471Z
             </div>
-        <script src="../../prettify.js"></script>
+        <script src="../../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../sorter.js"></script>
-        <script src="../../block-navigation.js"></script>
+        <script src="../../../sorter.js"></script>
+        <script src="../../../block-navigation.js"></script>
     </body>
 </html>
     

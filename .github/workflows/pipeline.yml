@@ -54,8 +54,8 @@ jobs:
       - name: Unit & Integration Tests
         shell: bash
         run: |
-          cd backend && go test -v -json -coverprofile=coverage.out ./... > report.json &
-          cd frontend && npm run coverage &
+          cd backend && go test -v -coverprofile=coverage.out ./... &
+          cd frontend && npm run coverage && sed -i 's|SF:src/|SF:frontend/src/|g' coverage/lcov.info &
           wait
 
       - name: SonarCloud Scan

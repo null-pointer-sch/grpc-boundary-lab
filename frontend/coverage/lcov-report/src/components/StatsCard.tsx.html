@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for src/components/ModeBadge.tsx</title>
+    <title>Code coverage report for src/components/StatsCard.tsx</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../../prettify.css" />
     <link rel="stylesheet" href="../../base.css" />
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/components</a> ModeBadge.tsx</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/components</a> StatsCard.tsx</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/4</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>4/8</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/4</span>
+                <span class='fraction'>2/2</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -106,8 +106,10 @@
 <a name='L41'></a><a href='#L41'>41</a>
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
-<a name='L44'></a><a href='#L44'>44</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -119,15 +121,19 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -150,44 +156,47 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from 'react';
-import { Shield, ShieldAlert } from 'lucide-react';
 import { cn } from '../utils/cn';
-import type { ModeInfo } from '../core/types/api';
 &nbsp;
-interface ModeBadgeProps {
-    mode: ModeInfo | null;
-    protocol: 'grpc' | 'rest';
-    tlsEnabled: boolean;
+interface StatsCardProps {
+    title: string;
+    value: string | number;
+    subtitle?: string;
+    icon?: React.ReactNode;
     className?: string;
 }
 &nbsp;
-export const ModeBadge: React.FC&lt;ModeBadgeProps&gt; = ({ mode, protocol, tlsEnabled, className }) =&gt; {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!mode) {
-<span class="cstat-no" title="statement not covered" >        return (</span>
-            &lt;div className={cn("rw-badge rw-badge-info animate-pulse", className)}&gt;
-                Initializing...
-            &lt;/div&gt;
-        );
-    }
-&nbsp;
+export const StatsCard: React.FC&lt;StatsCardProps&gt; = ({
+    title,
+    value,
+    subtitle,
+    icon,
+    className
+}) =&gt; {
     return (
-        &lt;div className={cn("flex items-center gap-2", className)}&gt;
-            &lt;div className={cn(
-                "rw-badge",
-                protocol === 'grpc' ? "rw-badge-info" : <span class="branch-1 cbranch-no" title="branch not covered" >"rw-badge-warning"</span>
-            )}&gt;
-                {protocol}
+        &lt;div className={cn(
+            "rw-card p-6 group",
+            className
+        )}&gt;
+            &lt;div className="flex items-center justify-between mb-4"&gt;
+                &lt;span className="text-[12px] font-bold text-text-sub uppercase tracking-wider"&gt;{title}&lt;/span&gt;
+                {icon &amp;&amp; (
+                    &lt;div className="p-2 bg-neutral-100 rounded-md text-text-sub group-hover:bg-neutral-200 transition-colors"&gt;
+                        {React.cloneElement(icon as React.ReactElement&lt;any&gt;, { size: 18 })}
+                    &lt;/div&gt;
+                )}
             &lt;/div&gt;
 &nbsp;
-            &lt;div className={cn(
-                "rw-badge font-bold",
-                tlsEnabled ? <span class="branch-0 cbranch-no" title="branch not covered" >"rw-badge-success" : "</span>rw-badge-error"
-            )}&gt;
-                {tlsEnabled ? (
-<span class="branch-0 cbranch-no" title="branch not covered" >                    &lt;&gt;&lt;Shield size={12} className="mr-1.5" /&gt; Secured&lt;/&gt;</span>
-                ) : (
-                    &lt;&gt;&lt;ShieldAlert size={12} className="mr-1.5" /&gt; Unsecured&lt;/&gt;
+            &lt;div className="flex items-baseline gap-2"&gt;
+                &lt;h3 className="text-[28px] font-bold text-text-main tabular-nums tracking-tight"&gt;{value}&lt;/h3&gt;
+                {subtitle &amp;&amp; (
+                    &lt;span className="text-[12px] font-medium text-text-sub uppercase"&gt;{subtitle}&lt;/span&gt;
                 )}
+            &lt;/div&gt;
+            
+            {/* Subtle bottom accent for high-density feel */}
+            &lt;div className="mt-4 h-1 w-full bg-neutral-100 rounded-full overflow-hidden"&gt;
+                &lt;div className="h-full bg-primary-red/10 w-1/3" /&gt;
             &lt;/div&gt;
         &lt;/div&gt;
     );
@@ -199,7 +208,7 @@ export const ModeBadge: React.FC&lt;ModeBadgeProps&gt; = ({ mode, protocol, tlsE
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-10T21:19:20.453Z
+                at 2026-03-10T21:19:20.471Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
