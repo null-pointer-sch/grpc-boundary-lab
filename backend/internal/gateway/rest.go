@@ -8,6 +8,8 @@ import (
 	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 )
 
+const errMethodNotAllowed = "Method not allowed"
+
 // RESTServer exposes the gateway's HTTP API.
 // It holds both plaintext and (optional) TLS backend clients,
 // allowing the frontend to toggle TLS per-request via ?tls=true.
@@ -15,12 +17,12 @@ type RESTServer struct {
 	overrideProtocol string
 
 	// Plaintext clients (always available).
-	grpcBackend BackendClient
-	restBackend BackendClient
+	grpcBackend Pinger
+	restBackend Pinger
 
 	// TLS clients (nil when certs are not present).
-	grpcBackendTLS BackendClient
-	restBackendTLS BackendClient
+	grpcBackendTLS Pinger
+	restBackendTLS Pinger
 
 	// Whether TLS clients were successfully initialised.
 	TLSAvailable bool
@@ -30,7 +32,7 @@ type RESTServer struct {
 }
 
 // NewRESTServer creates a RESTServer and registers all routes once.
-func NewRESTServer(override string, grpcClient, restClient, grpcTLS, restTLS BackendClient) *RESTServer {
+func NewRESTServer(override string, grpcClient, restClient, grpcTLS, restTLS Pinger) *RESTServer {
 	s := &RESTServer{
 		overrideProtocol: override,
 		grpcBackend:      grpcClient,
@@ -78,7 +80,7 @@ func (s *RESTServer) wantTLS(r *http.Request) bool {
 	return r.URL.Query().Get("tls") == "true"
 }
 
-func (s *RESTServer) pickClient(r *http.Request) (client BackendClient, activeTLS bool) {
+func (s *RESTServer) pickClient(r *http.Request) (client Pinger, activeTLS bool) {
 	target := s.targetProtocol(r)
 	useTLS := s.wantTLS(r) && s.TLSAvailable
 
@@ -98,7 +100,7 @@ func (s *RESTServer) pickClient(r *http.Request) (client BackendClient, activeTL
 
 func (s *RESTServer) handleMode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		httputil.WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
+		httputil.WriteErrorMessage(w, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
@@ -113,7 +115,7 @@ func (s *RESTServer) handleMode(w http.ResponseWriter, r *http.Request) {
 
 func (s *RESTServer) handlePing(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		httputil.WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
+		httputil.WriteErrorMessage(w, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
@@ -134,7 +136,7 @@ func (s *RESTServer) handlePing(w http.ResponseWriter, r *http.Request) {
 
 func (s *RESTServer) handleBench(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		httputil.WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
+		httputil.WriteErrorMessage(w, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 

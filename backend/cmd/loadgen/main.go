@@ -34,62 +34,17 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%s", host, port)
 
-	var grpcClient pb.PingServiceClient
-	var httpClient *http.Client
-	var scheme string = "http"
+	grpcClient, httpClient := initClients(mode, addr, tlsEnabled, certDir, c, deadlineMs)
 
+	scheme := "http"
 	if tlsEnabled {
 		scheme = "https"
-	}
-
-	if mode == "grpc" {
-		var grpcDialOpts []grpc.DialOption
-		if tlsEnabled {
-			tlsConfig, err := tlsutil.LoadClientConfig(certDir + "/ca.crt")
-			if err != nil {
-				log.Fatalf("failed to load client CA cert: %v", err)
-			}
-			grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
-		} else {
-			grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		}
-
-		conn, err := grpc.NewClient(addr, grpcDialOpts...)
-		if err != nil {
-			log.Fatalf("dial: %v", err)
-		}
-		defer conn.Close()
-		grpcClient = pb.NewPingServiceClient(conn)
-	} else {
-		var transport *http.Transport
-		if tlsEnabled {
-			tlsConfig, err := tlsutil.LoadClientConfig(certDir + "/ca.crt")
-			if err != nil {
-				log.Fatalf("failed to load client CA cert: %v", err)
-			}
-			transport = &http.Transport{
-				MaxIdleConns:        1000,
-				MaxIdleConnsPerHost: c,
-				IdleConnTimeout:     90 * time.Second,
-				TLSClientConfig:     tlsConfig,
-			}
-		} else {
-			transport = &http.Transport{
-				MaxIdleConns:        1000,
-				MaxIdleConnsPerHost: c,
-				IdleConnTimeout:     90 * time.Second,
-			}
-		}
-		httpClient = &http.Client{
-			Transport: transport,
-			Timeout:   time.Duration(deadlineMs) * time.Millisecond,
-		}
 	}
 
 	// Warmup
 	if warmup > 0 {
 		fmt.Printf("warmup: %d requests overhead (%s, tls=%v) with concurrency=%d\n", warmup, mode, tlsEnabled, c)
-		runPhase(grpcClient, httpClient, mode, scheme, addr, warmup, c, deadlineMs, false, nil)
+		runPhase(grpcClient, httpClient, PhaseConfig{Mode: mode, Scheme: scheme, Target: addr, N: warmup, C: c, DeadlineMs: deadlineMs, PrintExample: false}, nil)
 	}
 
 	fmt.Println("run,mode,attempted,ok,errors,concurrency,seconds,ok_rps,p50_us,p95_us,p99_us,max_us")
@@ -102,7 +57,7 @@ func main() {
 		printExample := r == 1
 
 		t0 := time.Now()
-		ok, errors := runPhase(grpcClient, httpClient, mode, scheme, addr, n, c, deadlineMs, printExample, hist)
+		ok, errors := runPhase(grpcClient, httpClient, PhaseConfig{Mode: mode, Scheme: scheme, Target: addr, N: n, C: c, DeadlineMs: deadlineMs, PrintExample: printExample}, hist)
 		elapsed := time.Since(t0).Seconds()
 
 		okRps := float64(ok) / elapsed
@@ -130,16 +85,75 @@ func main() {
 	}
 }
 
-func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, mode, scheme, target string, n, c int, deadlineMs int64, printExample bool, hist *hdrhistogram.Histogram) (okCount, errCount int64) {
+type PhaseConfig struct {
+	Mode         string
+	Scheme       string
+	Target       string
+	N            int
+	C            int
+	DeadlineMs   int64
+	PrintExample bool
+}
+
+func initClients(mode, addr string, tlsEnabled bool, certDir string, c int, deadlineMs int64) (pb.PingServiceClient, *http.Client) {
+	var grpcClient pb.PingServiceClient
+	var httpClient *http.Client
+
+	if mode == "grpc" {
+		var grpcDialOpts []grpc.DialOption
+		if tlsEnabled {
+			tlsConfig, err := tlsutil.LoadClientConfig(certDir + "/ca.crt")
+			if err != nil {
+				log.Fatalf("failed to load client CA cert: %v", err)
+			}
+			grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+		} else {
+			grpcDialOpts = append(grpcDialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+		}
+		conn, err := grpc.NewClient(addr, grpcDialOpts...)
+		if err != nil {
+			log.Fatalf("dial: %v", err)
+		}
+		// Notice: conn is deliberately not closed here for the lifespan of loadgen
+		grpcClient = pb.NewPingServiceClient(conn)
+	} else {
+		var transport *http.Transport
+		if tlsEnabled {
+			tlsConfig, err := tlsutil.LoadClientConfig(certDir + "/ca.crt")
+			if err != nil {
+				log.Fatalf("failed to load client CA cert: %v", err)
+			}
+			transport = &http.Transport{
+				MaxIdleConns:        1000,
+				MaxIdleConnsPerHost: c,
+				IdleConnTimeout:     90 * time.Second,
+				TLSClientConfig:     tlsConfig,
+			}
+		} else {
+			transport = &http.Transport{
+				MaxIdleConns:        1000,
+				MaxIdleConnsPerHost: c,
+				IdleConnTimeout:     90 * time.Second,
+			}
+		}
+		httpClient = &http.Client{
+			Transport: transport,
+			Timeout:   time.Duration(deadlineMs) * time.Millisecond,
+		}
+	}
+	return grpcClient, httpClient
+}
+
+func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, cfg PhaseConfig, hist *hdrhistogram.Histogram) (int64, int64) {
 	var wg sync.WaitGroup
 	var ok, errors atomic.Int64
 	var printedErrors atomic.Int32
 
-	for worker := 0; worker < c; worker++ {
+	for worker := 0; worker < cfg.C; worker++ {
 		wg.Add(1)
 		workerID := worker
-		base := n / c
-		extra := n % c
+		base := cfg.N / cfg.C
+		extra := cfg.N % cfg.C
 		myN := base
 		if workerID < extra {
 			myN++
@@ -150,36 +164,10 @@ func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, mode, sc
 			defer wg.Done()
 			for j := 0; j < myN; j++ {
 				i := startIndex + j
-				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(deadlineMs)*time.Millisecond)
+				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.DeadlineMs)*time.Millisecond)
 
 				startNs := time.Now()
-				var err error
-				var val string
-
-				if mode == "grpc" {
-					resp, rErr := grpcClient.Ping(ctx, &pb.PingRequest{Message: fmt.Sprintf("hi %d", i)})
-					err = rErr
-					if err == nil {
-						val = resp.GetMessage()
-					}
-				} else {
-					url := fmt.Sprintf("%s://%s/api/ping?message=hi%%20%d", scheme, target, i)
-					req, rErr := http.NewRequestWithContext(ctx, "GET", url, nil)
-					if rErr == nil {
-						resp, dErr := httpClient.Do(req)
-						err = dErr
-						if err == nil {
-							if resp.StatusCode != 200 {
-								err = fmt.Errorf("status: %d", resp.StatusCode)
-							}
-							resp.Body.Close()
-							val = "pong (rest)"
-						}
-					} else {
-						err = rErr
-					}
-				}
-
+				val, err := executeRequest(ctx, grpcClient, httpClient, cfg, i)
 				cancel()
 
 				if err != nil {
@@ -198,7 +186,7 @@ func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, mode, sc
 					}
 					hist.RecordValue(durUs)
 
-					if printExample && workerID == 0 && j == 0 {
+					if cfg.PrintExample && workerID == 0 && j == 0 {
 						fmt.Printf("example response: %s\n", val)
 					}
 				}
@@ -208,4 +196,29 @@ func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, mode, sc
 
 	wg.Wait()
 	return ok.Load(), errors.Load()
+}
+
+func executeRequest(ctx context.Context, grpcClient pb.PingServiceClient, httpClient *http.Client, cfg PhaseConfig, i int) (string, error) {
+	if cfg.Mode == "grpc" {
+		resp, err := grpcClient.Ping(ctx, &pb.PingRequest{Message: fmt.Sprintf("hi %d", i)})
+		if err != nil {
+			return "", err
+		}
+		return resp.GetMessage(), nil
+	}
+	
+	url := fmt.Sprintf("%s://%s/api/ping?message=hi%%20%d", cfg.Scheme, cfg.Target, i)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return "", err
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return "", fmt.Errorf("status: %d", resp.StatusCode)
+	}
+	return "pong (rest)", nil
 }

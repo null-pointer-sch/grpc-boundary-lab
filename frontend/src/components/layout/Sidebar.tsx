@@ -51,17 +51,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => 
       {/* Nav Items */}
       <nav className="flex-1 py-4 overflow-y-auto overflow-x-hidden">
         {navItems.map((item) => (
-          <div 
+          <button 
             key={item.id}
             onClick={() => setActiveItem(item.id)}
             className={cn(
-              "rw-nav-item mx-2 mb-1",
+              "rw-nav-item mx-2 mb-1 w-[calc(100%-16px)] text-left flex items-center",
               activeItem === item.id && "rw-nav-item-active"
             )}
           >
-            <item.icon size={20} className={cn(collapsed ? "mx-auto" : "min-w-[20px]")} />
+            <item.icon size={20} className={cn(collapsed ? "mx-auto" : "min-w-[20px] mr-2")} />
             {!collapsed && <span className="truncate">{item.label}</span>}
-          </div>
+          </button>
         ))}
       </nav>
 

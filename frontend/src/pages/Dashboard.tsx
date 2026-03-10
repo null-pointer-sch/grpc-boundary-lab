@@ -7,7 +7,8 @@ import {
   Shield, 
   ShieldOff, 
   Settings, 
-  ShieldCheck 
+  ShieldCheck,
+  Loader2
 } from 'lucide-react';
 
 import { useDashboard } from '../hooks/useDashboard';
@@ -15,6 +16,35 @@ import { ModeBadge } from '../components/ModeBadge';
 import { StatsCard } from '../components/StatsCard';
 import { LatencyChart } from '../components/LatencyChart';
 import { cn } from '../utils/cn';
+
+const DashboardStatsGrid: React.FC<{ stats: any }> = ({ stats }) => (
+    <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <StatsCard
+            title="Throughput"
+            value={stats ? Math.round(stats.rps).toLocaleString() : '--'}
+            subtitle="RPS"
+            icon={<Zap className="text-primary-red" />}
+        />
+        <StatsCard
+            title="P50 Latency"
+            value={stats ? stats.p50.toFixed(2) : '--'}
+            subtitle="MS"
+            icon={<BarChart2 className="text-viz-teal" />}
+        />
+        <StatsCard
+            title="P95 Latency"
+            value={stats ? stats.p95.toFixed(2) : '--'}
+            subtitle="MS"
+            icon={<BarChart2 className="text-viz-slate" />}
+        />
+        <StatsCard
+            title="P99 Latency"
+            value={stats ? stats.p99.toFixed(2) : '--'}
+            subtitle="MS"
+            icon={<BarChart2 className="text-primary-red" />}
+        />
+    </div>
+);
 
 export const Dashboard: React.FC = () => {
     const {
@@ -74,7 +104,7 @@ export const Dashboard: React.FC = () => {
                       <div className="flex gap-1 p-1 bg-white border border-neutral-200 rounded-md">
                         <button 
                             onClick={() => setTlsEnabled(false)}
-                            className={cn("flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded transition-all", !tlsEnabled ? "bg-primary-red text-white" : "hover:bg-neutral-100")}
+                            className={cn("flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded transition-all", tlsEnabled ? "hover:bg-neutral-100" : "bg-primary-red text-white")}
                         ><ShieldOff size={14} /> Plain</button>
                         <button 
                             onClick={() => setTlsEnabled(true)}
@@ -102,32 +132,7 @@ export const Dashboard: React.FC = () => {
             )}
 
             {/* Stats Grid */}
-            <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <StatsCard
-                    title="Throughput"
-                    value={stats ? Math.round(stats.rps).toLocaleString() : '--'}
-                    subtitle="RPS"
-                    icon={<Zap className="text-primary-red" />}
-                />
-                <StatsCard
-                    title="P50 Latency"
-                    value={stats ? stats.p50.toFixed(2) : '--'}
-                    subtitle="MS"
-                    icon={<BarChart2 className="text-viz-teal" />}
-                />
-                <StatsCard
-                    title="P95 Latency"
-                    value={stats ? stats.p95.toFixed(2) : '--'}
-                    subtitle="MS"
-                    icon={<BarChart2 className="text-viz-slate" />}
-                />
-                <StatsCard
-                    title="P99 Latency"
-                    value={stats ? stats.p99.toFixed(2) : '--'}
-                    subtitle="MS"
-                    icon={<BarChart2 className="text-primary-red" />}
-                />
-            </div>
+            <DashboardStatsGrid stats={stats} />
 
             {/* Main Area: Chart + Connection Test */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -159,7 +164,7 @@ export const Dashboard: React.FC = () => {
                                 className="rw-button-primary w-full h-12 text-md"
                             >
                                 {pinging ? (
-                                    <><RefreshCw className="animate-spin" size={20} /> Probe Active...</>
+                                    <><Loader2 className="animate-spin" size={20} /> Probe Active...</>
                                 ) : (
                                     <><Activity size={20} /> Initialize Probe</>
                                 )}

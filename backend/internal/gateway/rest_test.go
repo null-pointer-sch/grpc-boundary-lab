@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// mockBackendClient mocks the gateway.BackendClient interface
+// mockBackendClient mocks the gateway.Pinger interface
 type mockBackendClient struct {
 	Response string
 	Err      error

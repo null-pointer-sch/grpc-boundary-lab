@@ -35,9 +35,9 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
           <footer className="py-4 px-8 border-t border-neutral-300/30 text-[10px] text-text-sub flex justify-between">
             <span>&copy; 2026 Enterprise Performance Labs</span>
             <div className="flex gap-4">
-              <a href="#" className="hover:underline">Legal</a>
-              <a href="#" className="hover:underline">Privacy</a>
-              <a href="#" className="hover:underline">Support</a>
+              <button className="hover:underline">Legal</button>
+              <button className="hover:underline">Privacy</button>
+              <button className="hover:underline">Support</button>
             </div>
           </footer>
         </div>

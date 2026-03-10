@@ -31,8 +31,8 @@ export function useDashboard(): DashboardState & DashboardActions {
     const tlsRef = useRef<boolean>(false);
 
     // We still keep them in React state simply to drive the UI highlights on the buttons.
-    const [protocol, _setProtocolState] = useState<'grpc' | 'rest'>('grpc');
-    const [tlsEnabled, _setTlsState] = useState(false);
+    const [protocol, setProtocolState] = useState<'grpc' | 'rest'>('grpc');
+    const [tlsEnabled, setTlsState] = useState(false);
 
     const [loading, setLoading] = useState(true);
     const [fetchingStats, setFetchingStats] = useState(false);
@@ -73,14 +73,14 @@ export function useDashboard(): DashboardState & DashboardActions {
     const setProtocol = useCallback((p: 'grpc' | 'rest') => {
         if (p === protocolRef.current) return;
         protocolRef.current = p;
-        _setProtocolState(p);
+        setProtocolState(p);
         fetchAll(p, tlsRef.current, false);
     }, [fetchAll]);
 
     const setTlsEnabled = useCallback((tls: boolean) => {
         if (tls === tlsRef.current) return;
         tlsRef.current = tls;
-        _setTlsState(tls);
+        setTlsState(tls);
         fetchAll(protocolRef.current, tls, false);
     }, [fetchAll]);
 
@@ -93,7 +93,7 @@ export function useDashboard(): DashboardState & DashboardActions {
             setPinging(true);
             const start = performance.now();
             const data = await api.ping(protocolRef.current, tlsRef.current);
-            const latencyMs = data.latencyMs || parseFloat((performance.now() - start).toFixed(2));
+            const latencyMs = data.latencyMs || Number.parseFloat((performance.now() - start).toFixed(2));
             setPingResult({ ...data, latencyMs });
             setError(null);
         } catch (err: any) {

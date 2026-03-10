@@ -47,8 +47,8 @@ func main() {
 
 	// ── 2. Optionally create TLS clients (if certs are present) ──────────
 
-	var grpcTLS gateway.BackendClient
-	var restTLS gateway.BackendClient
+	var grpcTLS gateway.Pinger
+	var restTLS gateway.Pinger
 
 	clientTLS, loadErr := tlsutil.LoadClientConfig(cfg.CertDir + "/ca.crt")
 	if loadErr == nil {
@@ -89,7 +89,7 @@ func main() {
 	}
 
 	// Determine primary backend for the gRPC proxy
-	var primaryBackend gateway.BackendClient = grpcPlain
+	var primaryBackend gateway.Pinger = grpcPlain
 	if protocol == "rest" {
 		primaryBackend = restPlain
 	}
