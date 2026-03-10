@@ -19,8 +19,8 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Heavy frosted glass overlay allows the organic 'wood' textures to bloom through subtly for an enterprise look */}
-      <div className="absolute inset-0 bg-neutral-base/90 backdrop-blur-xl z-0 pointer-events-none" />
+      {/* Subtler frosted glass overlay allows the organic textures to shine through clearly while providing contrast for text */}
+      <div className="absolute inset-0 bg-neutral-base/20 backdrop-blur-sm z-0 pointer-events-none" />
 
       <div className="relative z-10 flex w-full">
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
