@@ -37,7 +37,7 @@ export const LatencyChart: React.FC<LatencyChartProps> = ({ stats }) => {
                 <BarChart
                     data={data}
                     margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
-                    barSize={60}
+                    barGap={24}
                 >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#EBE9E7" />
                     
@@ -56,9 +56,9 @@ export const LatencyChart: React.FC<LatencyChartProps> = ({ stats }) => {
                         width={45}
                     />
                     
-                    <Bar dataKey="P50" fill={COLORS.p50} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={60} />
-                    <Bar dataKey="P95" fill={COLORS.p95} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={60} />
-                    <Bar dataKey="P99" fill={COLORS.p99} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={60} />
+                    <Bar dataKey="P50" fill={COLORS.p50} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={40} />
+                    <Bar dataKey="P95" fill={COLORS.p95} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={40} />
+                    <Bar dataKey="P99" fill={COLORS.p99} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={40} />
                 </BarChart>
             </ResponsiveContainer>
             

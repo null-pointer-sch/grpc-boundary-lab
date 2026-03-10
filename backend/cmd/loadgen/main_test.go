@@ -69,7 +69,7 @@ func TestExecuteRequestREST(t *testing.T) {
 	defer cancel()
 
 	client := srv.Client()
-	
+
 	msg, err := executeRequest(ctx, nil, client, cfg, 0)
 	if err != nil || msg != "pong (rest)" {
 		t.Fatalf("expected ping success, got %v %s", err, msg)

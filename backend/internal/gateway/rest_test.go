@@ -124,7 +124,7 @@ func TestRESTServer_PickClient(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, tc.url, nil)
 		w := httptest.NewRecorder()
 		server.ServeHTTP(w, req)
-		
+
 		res := w.Result()
 		assert.Equal(t, http.StatusOK, res.StatusCode)
 
