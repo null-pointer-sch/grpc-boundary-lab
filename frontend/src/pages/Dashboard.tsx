@@ -7,8 +7,7 @@ import {
   Shield, 
   ShieldOff, 
   Settings, 
-  ShieldCheck,
-  Loader2
+  ShieldCheck
 } from 'lucide-react';
 
 import { useDashboard } from '../hooks/useDashboard';
@@ -163,11 +162,7 @@ export const Dashboard: React.FC = () => {
                                 disabled={pinging || !mode}
                                 className="rw-button-primary w-full h-12 text-md"
                             >
-                                {pinging ? (
-                                    <><Loader2 className="animate-spin" size={20} /> Probe Active...</>
-                                ) : (
-                                    <><Activity size={20} /> Initialize Probe</>
-                                )}
+                                <Activity size={20} className="mr-2 inline-block" /> Initialize Probe
                             </button>
                             
                             {pingResult && (
