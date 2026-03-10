@@ -9,10 +9,10 @@
   --color-primary-red-hover: #B53F2F;
   
   /* Neutral Palette */
-  --color-neutral-base: #F9F8F7;       /* Off-white base */
-  --color-neutral-100: #F3F1F0;        /* Light gray */
-  --color-neutral-200: #EBE9E7;        /* Border / Accent bg */
-  --color-neutral-300: #D8D4D0;
+  --color-neutral-base: #F4EBE1;       /* Visibly warm cream/beige */
+  --color-neutral-100: #E9DFD3;        /* Slightly darker cream */
+  --color-neutral-200: #D8CCBE;        /* Accent border / bg */
+  --color-neutral-300: #C2B3A3;
   --color-text-main: #312D2A;          /* Main body */
   --color-text-sub: #645F5B;           /* Subheadings/Labels */
   
