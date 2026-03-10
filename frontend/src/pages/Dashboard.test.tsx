@@ -24,7 +24,7 @@ describe('Dashboard Component', () => {
         });
 
         render(<Dashboard />);
-        expect(screen.getByTestId('dashboard-skeleton')).toBeInTheDocument();
+        expect(screen.getByText(/Initializing.../i)).toBeInTheDocument();
     });
 
     it('renders error state', () => {

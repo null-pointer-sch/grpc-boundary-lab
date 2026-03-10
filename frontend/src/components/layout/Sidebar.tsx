@@ -53,6 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, setCollapsed }) => 
         {navItems.map((item) => (
           <button 
             key={item.id}
+            role="menuitem"
             onClick={() => setActiveItem(item.id)}
             className={cn(
               "rw-nav-item mx-2 mb-1 w-[calc(100%-16px)] text-left flex items-center",

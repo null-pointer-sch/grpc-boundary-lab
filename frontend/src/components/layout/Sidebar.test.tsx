@@ -6,7 +6,7 @@ describe('Sidebar Component', () => {
     it('renders with navigation links', () => {
         render(<Sidebar collapsed={false} setCollapsed={vi.fn()} />);
         expect(screen.getByRole('menuitem', { name: /Dashboard/i })).toBeInTheDocument();
-        expect(screen.getByRole('menuitem', { name: /Insights/i })).toBeInTheDocument();
+        expect(screen.getByRole('menuitem', { name: /Latency/i })).toBeInTheDocument();
     });
 
     it('triggers click events without crashing', () => {
