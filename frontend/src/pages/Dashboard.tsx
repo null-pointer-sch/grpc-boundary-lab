@@ -24,10 +24,10 @@ export const Dashboard: React.FC = () => {
                     </div>
                     <div>
                         <h1 className="text-5xl font-black tracking-tighter text-redwood-text mb-2 uppercase drop-shadow-sm">
-                            Realms of <span className="text-redwood-red">Data</span>
+                            Performance <span className="text-redwood-red">Dashboard</span>
                         </h1>
                         <p className="text-xs font-black text-redwood-text-muted/80 uppercase tracking-[0.3em] ml-1">
-                            Oracle Redwood Artistic Performance Lab
+                            Network Boundary Observatory
                         </p>
                     </div>
                 </div>
