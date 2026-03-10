@@ -11,29 +11,64 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  PROJECT_ID: "grpc-boundary-lab"
+  REGION: "europe-west1"
+  ARTIFACT_REPO_ID: "grpc-boundary-lab-eu"
+  GCP_WIF_PROVIDER: "projects/957364549513/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+  GCP_SERVICE_ACCOUNT: "github-actions-deploy@grpc-boundary-lab.iam.gserviceaccount.com"
+
 jobs:
   test:
-    uses: null-pointer-sch/cicd-templates/.github/workflows/go-ci.yml@main
-    with:
-      go-version: "1.26"
-      working-directory: "backend"
-
-  sonarcloud:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.26'
-      - name: Run Backend Tests with Coverage
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "frontend/package-lock.json"
+
+      - name: Install Dependencies
+        shell: bash
         run: |
-          cd backend
-          go test -v -coverprofile=coverage.out ./...
+          cd backend && go mod download &
+          cd frontend && npm ci &
+          wait
+
+      - name: Linting & Formatting Check
+        shell: bash
+        run: |
+          cd backend && (gofmt -l . | grep .) && (echo "Formatting issues found" && exit 1) || true &
+          wait
+
+      - name: Unit & Integration Tests
+        shell: bash
+        run: |
+          cd backend && go test -v -coverprofile=coverage.out ./... &
+          # Frontend tests can be added here once defined
+          wait
+
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: sonarsource/sonarqube-scan-action@v6
+        with:
+          args: >
+            -Dsonar.projectKey=null-pointer-sch_grpc-boundary-lab
+            -Dsonar.organization=null-pointer-sch
+            -Dsonar.sources=backend,frontend/src
+            -Dsonar.tests=backend,frontend/src
+            -Dsonar.test.inclusions=backend/**/*_test.go,frontend/src/**/*.spec.ts,frontend/src/**/*.test.ts
+            -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.go.coverage.reportPaths=backend/coverage.out
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
