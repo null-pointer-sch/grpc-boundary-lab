@@ -4,6 +4,7 @@ package service
 import (
 	"context"
 
+	"github.com/null-pointer-sch/grpc-boundary-lab/internal/core"
 	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 )
 
@@ -12,7 +13,7 @@ type PingServer struct {
 	pb.UnimplementedPingServiceServer
 }
 
-// Ping replies with "pong: " followed by the incoming message.
+// Ping replies with a pong message using the core business logic.
 func (s *PingServer) Ping(_ context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
-	return &pb.PingResponse{Message: "pong: " + req.GetMessage()}, nil
+	return &pb.PingResponse{Message: core.GeneratePong(req.GetMessage())}, nil
 }

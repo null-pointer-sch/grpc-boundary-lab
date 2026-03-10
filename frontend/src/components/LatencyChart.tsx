@@ -16,76 +16,90 @@ interface LatencyChartProps {
 }
 
 const COLORS = {
-    p50: '#10b981',
-    p95: '#f59e0b',
-    p99: '#ef4444',
+    p50: '#00758F', // Redwood Teal
+    p95: '#7F2257', // Redwood Plum
+    p99: '#C74634', // Redwood Red
 } as const;
 
 const EMPTY_DATA = [
-    { name: 'p50', value: 0, color: COLORS.p50 },
-    { name: 'p95', value: 0, color: COLORS.p95 },
-    { name: 'p99', value: 0, color: COLORS.p99 },
+    { name: 'P50', value: 0, color: COLORS.p50 },
+    { name: 'P95', value: 0, color: COLORS.p95 },
+    { name: 'P99', value: 0, color: COLORS.p99 },
 ];
 
 export const LatencyChart: React.FC<LatencyChartProps> = ({ stats }) => {
     const data = useMemo(() => {
         if (!stats) return EMPTY_DATA;
         return [
-            { name: 'p50', value: stats.p50, color: COLORS.p50 },
-            { name: 'p95', value: stats.p95, color: COLORS.p95 },
-            { name: 'p99', value: stats.p99, color: COLORS.p99 },
+            { name: 'P50', value: stats.p50, color: COLORS.p50 },
+            { name: 'P95', value: stats.p95, color: COLORS.p95 },
+            { name: 'P99', value: stats.p99, color: COLORS.p99 },
         ];
     }, [stats]);
 
     return (
-        <div className="h-72 w-full pt-4">
+        <div className="h-96 w-full pt-10">
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                     data={data}
-                    margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
-                    barGap={8}
+                    margin={{ top: 20, right: 30, left: 10, bottom: 40 }}
+                    barGap={20}
                 >
                     <defs>
                         {Object.entries(COLORS).map(([key, color]) => (
-                            <linearGradient key={key} id={`grad-${key}`} x1="0" y1="0" x2="0" y2="1">
+                            <linearGradient key={key} id={`redwood-art-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stopColor={color} stopOpacity={0.9} />
-                                <stop offset="100%" stopColor={color} stopOpacity={0.4} />
+                                <stop offset="100%" stopColor={color} stopOpacity={0.3} />
                             </linearGradient>
                         ))}
+                        {/* Glass Overlay Gradient */}
+                        <linearGradient id="glassGradient" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor="white" stopOpacity={0.2} />
+                            <stop offset="50%" stopColor="white" stopOpacity={0.05} />
+                            <stop offset="100%" stopColor="white" stopOpacity={0.2} />
+                        </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                    
+                    <CartesianGrid strokeDasharray="10 10" stroke="rgba(49, 45, 42, 0.08)" vertical={false} />
+                    
                     <XAxis
                         dataKey="name"
-                        stroke="#71717a"
+                        stroke="#312D2A"
                         fontSize={12}
-                        fontWeight={600}
+                        fontWeight={900}
                         tickLine={false}
                         axisLine={false}
-                        dy={10}
+                        dy={25}
+                        letterSpacing="0.4em"
                     />
                     <YAxis
-                        stroke="#71717a"
+                        stroke="#645F5B"
                         fontSize={11}
+                        fontWeight={700}
                         tickLine={false}
                         axisLine={false}
                         tickFormatter={(val) => `${val}ms`}
-                        width={55}
+                        width={75}
+                        dx={-10}
                     />
-                    <ReferenceLine y={0} stroke="#3f3f46" />
+                    
+                    <ReferenceLine y={0} stroke="rgba(49, 45, 42, 0.1)" />
 
                     <Bar
                         dataKey="value"
-                        radius={[6, 6, 0, 0]}
-                        maxBarSize={56}
-                        isAnimationActive={false}
+                        radius={[16, 16, 0, 0]}
+                        maxBarSize={80}
+                        isAnimationActive={true}
+                        animationDuration={2000}
+                        animationBegin={300}
                     >
                         {data.map((entry) => (
                             <Cell
                                 key={entry.name}
-                                fill={`url(#grad-${entry.name})`}
+                                fill={`url(#redwood-art-grad-${entry.name.toLowerCase()})`}
                                 stroke={entry.color}
-                                strokeWidth={1}
-                                strokeOpacity={0.3}
+                                strokeWidth={3}
+                                strokeOpacity={0.2}
                             />
                         ))}
                     </Bar>

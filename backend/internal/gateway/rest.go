@@ -1,10 +1,10 @@
 package gateway
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
+	"github.com/null-pointer-sch/grpc-boundary-lab/internal/httputil"
 	pb "github.com/null-pointer-sch/grpc-boundary-lab/internal/proto"
 )
 
@@ -98,13 +98,13 @@ func (s *RESTServer) pickClient(r *http.Request) (client BackendClient, activeTL
 
 func (s *RESTServer) handleMode(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
+		httputil.WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
 	_, activeTLS := s.pickClient(r)
 
-	writeJSON(w, map[string]any{
+	httputil.WriteJSON(w, map[string]any{
 		"protocol":     s.targetProtocol(r),
 		"tls":          activeTLS,
 		"tlsAvailable": s.TLSAvailable,
@@ -113,7 +113,7 @@ func (s *RESTServer) handleMode(w http.ResponseWriter, r *http.Request) {
 
 func (s *RESTServer) handlePing(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
+		httputil.WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
@@ -122,11 +122,11 @@ func (s *RESTServer) handlePing(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := client.Ping(r.Context(), &pb.PingRequest{Message: "ping from frontend"})
 	if err != nil {
-		WriteError(w, http.StatusInternalServerError, err)
+		httputil.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	writeJSON(w, map[string]any{
+	httputil.WriteJSON(w, map[string]any{
 		"message":   resp.GetMessage(),
 		"latencyMs": time.Since(start).Milliseconds(),
 	})
@@ -134,7 +134,7 @@ func (s *RESTServer) handlePing(w http.ResponseWriter, r *http.Request) {
 
 func (s *RESTServer) handleBench(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
+		httputil.WriteErrorMessage(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
@@ -143,15 +143,10 @@ func (s *RESTServer) handleBench(w http.ResponseWriter, r *http.Request) {
 
 	data, ok := s.stats.GetStats(target, activeTLS)
 	if !ok {
-		WriteErrorMessage(w, http.StatusNotFound, "Stats not found")
+		httputil.WriteErrorMessage(w, http.StatusNotFound, "Stats not found")
 		return
 	}
 
-	writeJSON(w, data)
+	httputil.WriteJSON(w, data)
 }
 
-// writeJSON is a small helper that sets Content-Type and encodes v as JSON.
-func writeJSON(w http.ResponseWriter, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(v)
-}

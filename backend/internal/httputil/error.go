@@ -1,4 +1,4 @@
-package gateway
+package httputil
 
 import (
 	"encoding/json"
@@ -13,12 +13,7 @@ type ErrorResponse struct {
 
 // WriteError sends a standardized JSON error response.
 func WriteError(w http.ResponseWriter, code int, err error) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(ErrorResponse{
-		Error:   http.StatusText(code),
-		Message: err.Error(),
-	})
+	WriteErrorMessage(w, code, err.Error())
 }
 
 // WriteErrorMessage sends a standardized JSON error response with a custom message.

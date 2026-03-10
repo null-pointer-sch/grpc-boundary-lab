@@ -10,7 +10,7 @@ BOLD      := \033[1m
 RESET     := \033[0m
 
 .DEFAULT_GOAL := help
-.PHONY: help install build clean test check run backend gateway frontend loadgen sweep docs docs-deploy
+.PHONY: help install build clean test check run stop kill-ports backend gateway frontend loadgen sweep docs docs-deploy
 
 help: ## Show this help
 	@printf "\n$(BOLD)$(CYAN)grpc-boundary-lab Orchestrator$(RESET)\n\n"
@@ -25,6 +25,15 @@ all: install build check run ## Install dependencies, build everything, run chec
 run: ## Start all containers in the background via Docker Compose
 	@printf "\n$(BOLD)$(CYAN)Starting all containers$(RESET)\n"
 	docker compose up --build -d
+
+stop: ## Stop all containers and kill local processes holding ports
+	@printf "\n$(BOLD)$(YELLOW)Stopping containers and clearing ports...$(RESET)\n"
+	docker compose down --remove-orphans || true
+	$(MAKE) kill-ports
+
+kill-ports: ## Kill processes on 8080, 8081, 50051, 50052
+	@printf "$(YELLOW)▸ killing processes on app ports…$(RESET)\n"
+	@fuser -k 8080/tcp 8081/tcp 50051/tcp 50052/tcp 2>/dev/null || true
 
 install: ## Install dependencies (frontend)
 	$(MAKE) -C frontend install
