@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/HdrHistogram/hdrhistogram-go"
 )
 
 func TestMainExecution_GRPC(t *testing.T) {
@@ -88,5 +90,32 @@ func TestWorkerAndPhase(t *testing.T) {
 	ok, errs := runPhase(nil, nil, cfg, nil)
 	if ok != 0 || errs != 0 {
 		t.Fatalf("expected 0, got %d %d", ok, errs)
+	}
+
+	// Now test with N=1 to see it hit an error
+	cfg.N = 1
+	client := &http.Client{Timeout: 50 * time.Millisecond}
+	ok, errs = runPhase(nil, client, cfg, nil)
+	if ok != 0 || errs != 1 {
+		t.Fatalf("expected 1 error, got %d %d", ok, errs)
+	}
+
+	// Now with a legitimate server
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("pong (rest)"))
+	}))
+	defer srv.Close()
+
+	hist := hdrhistogram.New(1, 60_000_000, 3)
+
+	cfg.Target = srv.Listener.Addr().String()
+	cfg.C = 2
+	cfg.N = 4 // 2 per worker
+	cfg.PrintExample = true
+
+	ok, errs = runPhase(nil, srv.Client(), cfg, hist)
+	if ok != 4 || errs != 0 {
+		t.Fatalf("expected 4 ok, 0 errs, got %d %d", ok, errs)
 	}
 }
