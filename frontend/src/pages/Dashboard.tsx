@@ -15,7 +15,7 @@ export const Dashboard: React.FC = () => {
     } = useDashboard();
 
     return (
-        <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl px-4 pt-8 sm:pt-12 pb-20 sm:px-6 lg:px-8">
             {/* Artistic Header Section */}
             <div className="mb-16 flex flex-col items-start justify-between gap-10 md:flex-row md:items-center p-8 rounded-[40px] bg-white/20 backdrop-blur-2xl border border-white/30 shadow-2xl">
                 <div className="flex items-center gap-6">
