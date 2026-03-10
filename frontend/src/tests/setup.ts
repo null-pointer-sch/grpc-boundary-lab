@@ -7,8 +7,16 @@ afterEach(() => {
 });
 
 class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+  observe(): void {
+    // Stub for testing
+  }
+
+  unobserve(): void {
+    // Stub for testing
+  }
+
+  disconnect(): void {
+    // Stub for testing
+  }
 }
-(window as any).ResizeObserver = ResizeObserver;
+;(globalThis as any).ResizeObserver = ResizeObserver;

@@ -151,51 +151,53 @@ func runPhase(grpcClient pb.PingServiceClient, httpClient *http.Client, cfg Phas
 
 	for worker := 0; worker < cfg.C; worker++ {
 		wg.Add(1)
-		workerID := worker
-		base := cfg.N / cfg.C
-		extra := cfg.N % cfg.C
-		myN := base
-		if workerID < extra {
-			myN++
-		}
-		startIndex := workerID*base + min(workerID, extra)
-
-		go func() {
-			defer wg.Done()
-			for j := 0; j < myN; j++ {
-				i := startIndex + j
-				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.DeadlineMs)*time.Millisecond)
-
-				startNs := time.Now()
-				val, err := executeRequest(ctx, grpcClient, httpClient, cfg, i)
-				cancel()
-
-				if err != nil {
-					errors.Add(1)
-					if printedErrors.Add(1) <= 3 {
-						fmt.Printf("error example: %v\n", err)
-					}
-					continue
-				}
-
-				ok.Add(1)
-				if hist != nil {
-					durUs := time.Since(startNs).Microseconds()
-					if durUs < 1 {
-						durUs = 1
-					}
-					hist.RecordValue(durUs)
-
-					if cfg.PrintExample && workerID == 0 && j == 0 {
-						fmt.Printf("example response: %s\n", val)
-					}
-				}
-			}
-		}()
+		go runWorker(worker, grpcClient, httpClient, cfg, hist, &wg, &ok, &errors, &printedErrors)
 	}
 
 	wg.Wait()
 	return ok.Load(), errors.Load()
+}
+
+func runWorker(workerID int, grpcClient pb.PingServiceClient, httpClient *http.Client, cfg PhaseConfig, hist *hdrhistogram.Histogram, wg *sync.WaitGroup, ok, errors *atomic.Int64, printedErrors *atomic.Int32) {
+	defer wg.Done()
+	
+	base := cfg.N / cfg.C
+	extra := cfg.N % cfg.C
+	myN := base
+	if workerID < extra {
+		myN++
+	}
+	startIndex := workerID*base + min(workerID, extra)
+
+	for j := 0; j < myN; j++ {
+		i := startIndex + j
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.DeadlineMs)*time.Millisecond)
+
+		startNs := time.Now()
+		val, err := executeRequest(ctx, grpcClient, httpClient, cfg, i)
+		cancel()
+
+		if err != nil {
+			errors.Add(1)
+			if printedErrors.Add(1) <= 3 {
+				fmt.Printf("error example: %v\n", err)
+			}
+			continue
+		}
+
+		ok.Add(1)
+		if hist != nil {
+			durUs := time.Since(startNs).Microseconds()
+			if durUs < 1 {
+				durUs = 1
+			}
+			hist.RecordValue(durUs)
+
+			if cfg.PrintExample && workerID == 0 && j == 0 {
+				fmt.Printf("example response: %s\n", val)
+			}
+		}
+	}
 }
 
 func executeRequest(ctx context.Context, grpcClient pb.PingServiceClient, httpClient *http.Client, cfg PhaseConfig, i int) (string, error) {

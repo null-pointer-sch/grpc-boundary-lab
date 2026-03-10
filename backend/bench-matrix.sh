@@ -47,3 +47,4 @@ run_benchmark grpc 1 grpc-tls
 
 echo ""
 echo "Done."
+exit 0

@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">81.81% </span>
+                <span class="strong">77.77% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>9/11</span>
+                <span class='fraction'>7/9</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/5</span>
+                <span class='fraction'>2/3</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">90% </span>
+                <span class="strong">87.5% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>9/10</span>
+                <span class='fraction'>7/8</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line high'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -145,18 +145,7 @@
 <a name='L80'></a><a href='#L80'>80</a>
 <a name='L81'></a><a href='#L81'>81</a>
 <a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a>
-<a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L83'></a><a href='#L83'>83</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -181,14 +170,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -224,7 +209,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -235,10 +219,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -255,7 +235,6 @@ import {
     YAxis,
     CartesianGrid,
     ResponsiveContainer,
-    Cell,
 } from 'recharts';
 import type { BenchmarkStats } from '../core/types/api';
 &nbsp;
@@ -270,18 +249,14 @@ const COLORS = {
 } as const;
 &nbsp;
 const EMPTY_DATA = [
-    { name: 'P50', value: 0, color: COLORS.p50, label: 'Median' },
-    { name: 'P95', value: 0, color: COLORS.p95, label: '95th Percentile' },
-    { name: 'P99', value: 0, color: COLORS.p99, label: '99th Percentile' },
+    { name: '', P50: 0, P95: 0, P99: 0 },
 ];
 &nbsp;
 export const LatencyChart: React.FC&lt;LatencyChartProps&gt; = ({ stats }) =&gt; {
     const data = useMemo(() =&gt; {
         <span class="missing-if-branch" title="if path not taken" >I</span>if (!stats) <span class="cstat-no" title="statement not covered" >return EMPTY_DATA;</span>
         return [
-            { name: 'P50', value: stats.p50, color: COLORS.p50, label: 'Median' },
-            { name: 'P95', value: stats.p95, color: COLORS.p95, label: '95th Percentile' },
-            { name: 'P99', value: stats.p99, color: COLORS.p99, label: '99th Percentile' },
+            { name: '', P50: stats.p50, P95: stats.p95, P99: stats.p99 }
         ];
     }, [stats]);
 &nbsp;
@@ -310,31 +285,26 @@ export const LatencyChart: React.FC&lt;LatencyChartProps&gt; = ({ stats }) =&gt;
                         width={45}
                     /&gt;
                     
-                    &lt;Bar
-                        dataKey="value"
-                        radius={[4, 4, 0, 0]}
-                        isAnimationActive={true}
-                    &gt;
-                        {data.map((entry, index) =&gt; (
-                            &lt;Cell 
-                                key={`cell-${index}`} 
-                                fill={entry.color} 
-                                fillOpacity={0.8}
-                                className="hover:fill-opacity-100 transition-all duration-300"
-                            /&gt;
-                        ))}
-                    &lt;/Bar&gt;
+                    &lt;Bar dataKey="P50" fill={COLORS.p50} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={60} /&gt;
+                    &lt;Bar dataKey="P95" fill={COLORS.p95} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={60} /&gt;
+                    &lt;Bar dataKey="P99" fill={COLORS.p99} radius={[4, 4, 0, 0]} isAnimationActive={true} barSize={60} /&gt;
                 &lt;/BarChart&gt;
             &lt;/ResponsiveContainer&gt;
             
             {/* Custom Legend */}
             &lt;div className="flex justify-center gap-8 mt-6"&gt;
-                {data.map((entry) =&gt; (
-                    &lt;div key={entry.name} className="flex items-center gap-2"&gt;
-                        &lt;div className="w-3 h-3 rounded-sm" style={{ backgroundColor: entry.color }} /&gt;
-                        &lt;span className="text-[11px] font-bold text-text-sub uppercase tracking-wider"&gt;{entry.label}&lt;/span&gt;
-                    &lt;/div&gt;
-                ))}
+                &lt;div className="flex items-center gap-2"&gt;
+                    &lt;div className="w-3 h-3 rounded-sm" style={{ backgroundColor: COLORS.p50 }} /&gt;
+                    &lt;span className="text-[11px] font-bold text-text-sub uppercase tracking-wider"&gt;Median&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div className="flex items-center gap-2"&gt;
+                    &lt;div className="w-3 h-3 rounded-sm" style={{ backgroundColor: COLORS.p95 }} /&gt;
+                    &lt;span className="text-[11px] font-bold text-text-sub uppercase tracking-wider"&gt;95th Percentile&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;div className="flex items-center gap-2"&gt;
+                    &lt;div className="w-3 h-3 rounded-sm" style={{ backgroundColor: COLORS.p99 }} /&gt;
+                    &lt;span className="text-[11px] font-bold text-text-sub uppercase tracking-wider"&gt;99th Percentile&lt;/span&gt;
+                &lt;/div&gt;
             &lt;/div&gt;
         &lt;/div&gt;
     );
@@ -346,7 +316,7 @@ export const LatencyChart: React.FC&lt;LatencyChartProps&gt; = ({ stats }) =&gt;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-10T21:05:56.551Z
+                at 2026-03-10T21:15:09.529Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

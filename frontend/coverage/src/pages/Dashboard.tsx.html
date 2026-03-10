@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">45.45% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>3/9</span>
+                <span class='fraction'>5/11</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">14.28% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/7</span>
+                <span class='fraction'>2/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.33% </span>
+                <span class="strong">45.45% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>3/9</span>
+                <span class='fraction'>5/11</span>
             </div>
         
             
@@ -268,7 +268,42 @@
 <a name='L203'></a><a href='#L203'>203</a>
 <a name='L204'></a><a href='#L204'>204</a>
 <a name='L205'></a><a href='#L205'>205</a>
-<a name='L206'></a><a href='#L206'>206</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -348,31 +383,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -482,7 +492,8 @@ import {
   Shield, 
   ShieldOff, 
   Settings, 
-  ShieldCheck 
+  ShieldCheck,
+  Loader2
 } from 'lucide-react';
 &nbsp;
 import { useDashboard } from '../hooks/useDashboard';
@@ -490,6 +501,35 @@ import { ModeBadge } from '../components/ModeBadge';
 import { StatsCard } from '../components/StatsCard';
 import { LatencyChart } from '../components/LatencyChart';
 import { cn } from '../utils/cn';
+&nbsp;
+const DashboardStatsGrid: React.FC&lt;{ stats: any }&gt; = ({ stats }) =&gt; (
+    &lt;div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"&gt;
+        &lt;StatsCard
+            title="Throughput"
+            value={stats ? Math.round(stats.rps).toLocaleString() : <span class="branch-1 cbranch-no" title="branch not covered" >'--'}</span>
+            subtitle="RPS"
+            icon={&lt;Zap className="text-primary-red" /&gt;}
+        /&gt;
+        &lt;StatsCard
+            title="P50 Latency"
+            value={stats ? stats.p50.toFixed(2) : <span class="branch-1 cbranch-no" title="branch not covered" >'--'}</span>
+            subtitle="MS"
+            icon={&lt;BarChart2 className="text-viz-teal" /&gt;}
+        /&gt;
+        &lt;StatsCard
+            title="P95 Latency"
+            value={stats ? stats.p95.toFixed(2) : <span class="branch-1 cbranch-no" title="branch not covered" >'--'}</span>
+            subtitle="MS"
+            icon={&lt;BarChart2 className="text-viz-slate" /&gt;}
+        /&gt;
+        &lt;StatsCard
+            title="P99 Latency"
+            value={stats ? stats.p99.toFixed(2) : <span class="branch-1 cbranch-no" title="branch not covered" >'--'}</span>
+            subtitle="MS"
+            icon={&lt;BarChart2 className="text-primary-red" /&gt;}
+        /&gt;
+    &lt;/div&gt;
+);
 &nbsp;
 export const Dashboard: React.FC = () =&gt; {
     const {
@@ -549,7 +589,7 @@ export const Dashboard: React.FC = () =&gt; {
                       &lt;div className="flex gap-1 p-1 bg-white border border-neutral-200 rounded-md"&gt;
                         &lt;button 
                             onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etTlsEnabled(false)}</span>
-                            className={cn("flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded transition-all", !tlsEnabled ? "bg-primary-red text-white" : <span class="branch-1 cbranch-no" title="branch not covered" >"hover:bg-neutral-100")</span>}
+                            className={cn("flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded transition-all", tlsEnabled ? <span class="branch-0 cbranch-no" title="branch not covered" >"hover:bg-neutral-100" : "</span>bg-primary-red text-white")}
                         &gt;&lt;ShieldOff size={14} /&gt; Plain&lt;/button&gt;
                         &lt;button 
                             onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etTlsEnabled(true)}</span>
@@ -577,32 +617,7 @@ export const Dashboard: React.FC = () =&gt; {
             )}
 &nbsp;
             {/* Stats Grid */}
-            &lt;div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"&gt;
-                &lt;StatsCard
-                    title="Throughput"
-                    value={stats ? Math.round(stats.rps).toLocaleString() : <span class="branch-1 cbranch-no" title="branch not covered" >'--'}</span>
-                    subtitle="RPS"
-                    icon={&lt;Zap className="text-primary-red" /&gt;}
-                /&gt;
-                &lt;StatsCard
-                    title="P50 Latency"
-                    value={stats ? stats.p50.toFixed(2) : <span class="branch-1 cbranch-no" title="branch not covered" >'--'}</span>
-                    subtitle="MS"
-                    icon={&lt;BarChart2 className="text-viz-teal" /&gt;}
-                /&gt;
-                &lt;StatsCard
-                    title="P95 Latency"
-                    value={stats ? stats.p95.toFixed(2) : <span class="branch-1 cbranch-no" title="branch not covered" >'--'}</span>
-                    subtitle="MS"
-                    icon={&lt;BarChart2 className="text-viz-slate" /&gt;}
-                /&gt;
-                &lt;StatsCard
-                    title="P99 Latency"
-                    value={stats ? stats.p99.toFixed(2) : <span class="branch-1 cbranch-no" title="branch not covered" >'--'}</span>
-                    subtitle="MS"
-                    icon={&lt;BarChart2 className="text-primary-red" /&gt;}
-                /&gt;
-            &lt;/div&gt;
+            &lt;DashboardStatsGrid stats={stats} /&gt;
 &nbsp;
             {/* Main Area: Chart + Connection Test */}
             &lt;div className="grid grid-cols-1 gap-8 lg:grid-cols-3"&gt;
@@ -634,7 +649,7 @@ export const Dashboard: React.FC = () =&gt; {
                                 className="rw-button-primary w-full h-12 text-md"
                             &gt;
                                 {pinging ? (
-<span class="branch-0 cbranch-no" title="branch not covered" >                                    &lt;&gt;&lt;RefreshCw className="animate-spin" size={20} /&gt; Probe Active...&lt;/&gt;</span>
+<span class="branch-0 cbranch-no" title="branch not covered" >                                    &lt;&gt;&lt;Loader2 className="animate-spin" size={20} /&gt; Probe Active...&lt;/&gt;</span>
                                 ) : (
                                     &lt;&gt;&lt;Activity size={20} /&gt; Initialize Probe&lt;/&gt;
                                 )}
@@ -685,7 +700,7 @@ export const Dashboard: React.FC = () =&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-10T21:05:56.551Z
+                at 2026-03-10T21:15:09.529Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
