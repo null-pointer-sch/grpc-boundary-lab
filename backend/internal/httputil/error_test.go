@@ -1,4 +1,4 @@
-package httputil
+package httputil_test
 
 import (
 	"encoding/json"
@@ -6,49 +6,45 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/null-pointer-sch/grpc-boundary-lab/internal/httputil"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestWriteError(t *testing.T) {
 	w := httptest.NewRecorder()
-	err := errors.New("test error")
-	code := http.StatusBadRequest
+	err := errors.New("something went wrong")
 
-	WriteError(w, code, err)
+	httputil.WriteError(w, http.StatusBadRequest, err)
 
-	if w.Code != code {
-		t.Errorf("expected status %d, got %d", code, w.Code)
-	}
+	res := w.Result()
+	defer res.Body.Close()
 
-	var resp ErrorResponse
-	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
-		t.Fatal(err)
-	}
+	assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+	assert.Equal(t, "application/json", res.Header.Get("Content-Type"))
 
-	if resp.Error != http.StatusText(code) {
-		t.Errorf("expected error %s, got %s", http.StatusText(code), resp.Error)
-	}
+	var payload httputil.ErrorResponse
+	require.NoError(t, json.NewDecoder(res.Body).Decode(&payload))
 
-	if resp.Message != "test error" {
-		t.Errorf("expected message 'test error', got '%s'", resp.Message)
-	}
+	assert.Equal(t, http.StatusText(http.StatusBadRequest), payload.Error)
+	assert.Equal(t, "something went wrong", payload.Message)
 }
 
-func TestWriteJSON(t *testing.T) {
+func TestWriteErrorMessage(t *testing.T) {
 	w := httptest.NewRecorder()
-	data := map[string]string{"foo": "bar"}
 
-	WriteJSON(w, data)
+	httputil.WriteErrorMessage(w, http.StatusNotFound, "not found here")
 
-	if w.Header().Get("Content-Type") != "application/json" {
-		t.Errorf("expected Content-Type application/json, got %s", w.Header().Get("Content-Type"))
-	}
+	res := w.Result()
+	defer res.Body.Close()
 
-	var got map[string]string
-	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
-		t.Fatal(err)
-	}
+	assert.Equal(t, http.StatusNotFound, res.StatusCode)
+	assert.Equal(t, "application/json", res.Header.Get("Content-Type"))
 
-	if got["foo"] != "bar" {
-		t.Errorf("expected foo=bar, got %v", got["foo"])
-	}
+	var payload httputil.ErrorResponse
+	require.NoError(t, json.NewDecoder(res.Body).Decode(&payload))
+
+	assert.Equal(t, http.StatusText(http.StatusNotFound), payload.Error)
+	assert.Equal(t, "not found here", payload.Message)
 }
