@@ -43,6 +43,8 @@ dist/
 .env
 .env.*
 .env.local
+backend/report.json
+backend/coverage.html
 
 # Certificates
 certs/*.key

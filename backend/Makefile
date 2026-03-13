@@ -59,8 +59,9 @@ build: ## Build all binaries → bin/
 	$(GO) build -buildvcs=false -o $(BIN)/loadgen  $(MODULE)/loadgen
 	@printf "$(GREEN)✔ binaries in $(BIN)/$(RESET)\n"
 
-clean: ## Remove built binaries
+clean: ## Remove built binaries and test artifacts
 	rm -rf $(BIN)
+	rm -f report.json coverage.html
 
 test: ## Run all tests
 	$(GO) test ./...
