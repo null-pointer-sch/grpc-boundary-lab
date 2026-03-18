@@ -1,0 +1,22 @@
+# Dependencies (reinstalled in container)
+node_modules/
+
+# Build output (rebuilt in container)
+dist/
+
+# Test & coverage
+coverage/
+coverage_output.txt
+test-results.txt
+
+# CI / docs
+*.md
+Makefile
+
+# Docker
+Dockerfile
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store

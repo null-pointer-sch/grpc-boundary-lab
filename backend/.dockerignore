@@ -1,0 +1,21 @@
+# Build artifacts
+bin/
+
+# Test & coverage
+*_test.go
+coverage.out
+matrix_results.txt
+
+# CI / docs
+*.md
+Makefile
+bench-matrix.sh
+deploy/
+
+# Docker
+Dockerfile*
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
